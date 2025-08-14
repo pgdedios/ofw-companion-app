@@ -10,9 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_08_14_121431) do
+ActiveRecord::Schema[7.2].define(version: 2025_08_14_122615) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "currency_rates", force: :cascade do |t|
+    t.string "base_currency"
+    t.string "target_currency"
+    t.decimal "rate"
+    t.datetime "fetched_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
