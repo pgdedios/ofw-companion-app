@@ -56,6 +56,20 @@ group :test do
   gem "selenium-webdriver"
 end
 
+# Frontend & UI
 gem "tailwindcss-ruby", "~> 4.1"
-
 gem "tailwindcss-rails", "~> 4.3"
+
+# Authentication & Authorization
+gem "devise", "~> 4.9"
+
+group :development, :test do
+  # Testing
+  gem "rspec-rails", "~> 8.0.0"
+
+  # Environment & Configuration
+  gem "dotenv-rails"
+
+  # Code Quality
+  gem "rubocop", require: false
+end
