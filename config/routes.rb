@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  # get "packages/index"
+  get "packages/index"
   get "home/index"
   get "dashboard/index"
   # get "packages/index"
