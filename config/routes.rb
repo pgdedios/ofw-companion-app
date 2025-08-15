@@ -1,6 +1,9 @@
 Rails.application.routes.draw do
+  # get "packages/index"
   get "home/index"
   get "dashboard/index"
+  # get "packages/index"
+
   devise_for :users
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
@@ -18,6 +21,7 @@ Rails.application.routes.draw do
 
   # Conditional root paths based on authentication
   authenticated :user do
+    resources :packages, only: [ :index, :show ]
     root to: "dashboard#index", as: :authenticated_root
   end
 
