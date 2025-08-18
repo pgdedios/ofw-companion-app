@@ -1,4 +1,27 @@
-<div>
-  <h1 class="font-bold text-4xl">Packages#show</h1>
-  <p>Find me in app/views/packages/show.html.erb</p>
-</div>
+<h1>Tracking Result</h1>
+
+<% if @tracking.present? %>
+  <p><strong>Number:</strong> <%= @tracking[:number] %></p>
+  <p><strong>Status:</strong> <%= @tracking[:package_status] %> (<%= @tracking[:days_of_transit_done] || "-" %> Days)</p>
+  <p><strong>Country:</strong> <%= @tracking[:origin_country].presence || "Unknown" %> -> <%= @tracking[:destination_country].presence || "Unknown" %></p>
+
+  <h3>Event History</h3>
+  <% if @tracking[:latest_event_info].present? %>
+    <p><%= @tracking[:latest_event_info] %></p>
+  <% else %>
+    <p>No tracking events available.</p>
+  <% end %>
+
+<% elsif @rejected.any? %>
+  <h2>Tracking Failed</h2>
+  <% @rejected.each do |r| %>
+    <p>Number: <%= r[:number] %> - Error: <%= r.dig(:error, :message) %></p>
+  <% end %>
+<% elsif @errors.any? %>
+  <h2>Error</h2>
+  <% @errors.each do |e| %>
+    <p><%= e[:message] %></p>
+  <% end %>
+<% else %>
+  <p>No tracking info available.</p>
+<% end %>

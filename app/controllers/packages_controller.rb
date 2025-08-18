@@ -1,7 +1,15 @@
 class PackagesController < ApplicationController
   def index
-  end
+    tn = params[:tracking_number]
+    carrier = params[:carrier]
 
-  def show
+    @carriers = TrackingService.carriers
+
+    if tn.present?
+      # Delegate everything to the service
+      @tracking_details = TrackingService.new(tn, carrier).track
+    else
+      @tracking_details = []
+    end
   end
 end
