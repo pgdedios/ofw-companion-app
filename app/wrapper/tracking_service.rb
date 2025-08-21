@@ -59,7 +59,7 @@ class TrackingService
       formatted_events = events.map do |e|
         {
           "time_utc" => e["time_utc"],
-          "stage" => e["stage"],
+          "stage" => (e["stage"].presence || e["sub_status"]&.split("_")&.first),
           "description" => e["description"],
           "location" => e["location"],
           "sms_sent" => false,

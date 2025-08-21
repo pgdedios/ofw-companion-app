@@ -24,14 +24,21 @@ class PackagesController < ApplicationController
   end
 
   def create
-    @package = current_user.packages.new(package_params)
+    @package = current_user.packages.new(
+      tracking_number: params[:tracking_number],
+      courier_name: params[:courier_name]
+    )
+
+    # Parse tracking_events JSON from hidden field
+    @package.tracking_events = JSON.parse(params[:tracking_events]) rescue []
+
+    # Get the official status from TrackingService
+    tracking_details = TrackingService.new(@package.tracking_number, @package.courier_name).track
+    if tracking_details.any?
+      @package.status = tracking_details.first[:status]
+    end
 
     if @package.save
-      # Build dynamic message
-      message = "Package #{@package.tracking_number} with #{@package.courier_name} is now added. Status: #{@package.status || 'Pending'}"
-
-      # Send new package info to Zapier
-      send_to_zapier(@package, message)
       redirect_to packages_path, notice: "Package added."
     else
       flash[:alert] = @package.errors.full_messages.join(", ")
@@ -39,38 +46,25 @@ class PackagesController < ApplicationController
     end
   end
 
-  # Webhook endpoint to receive tracking updates
+  skip_before_action :verify_authenticity_token, only: [ :webhook_update ] # required for external webhook
   def webhook_update
-    service = TrackingService.new(@package.tracking_number, @package.courier_name)
-    tracking_data = service.track.first
+    payload = request.raw_post
+    data = JSON.parse(payload) rescue {}
 
-    if tracking_data
-      # Merge new events intelligently
-      @package.merge_tracking_events!(tracking_data[:events])
+    tracking_number = data.dig("data", "number")
+    events = data.dig("data", "origin_info", "trackinfo") || []
 
-      # Update latest status
-      @package.update(
-        status: tracking_data[:status]
+    package = Package.find_by(tracking_number: tracking_number)
+
+    if package
+      package.update(
+        courier_name: data.dig("data", "carrier_code"),
+        tracking_events: merge_tracking_events(package.tracking_events, events)
       )
+      render json: { success: true }
+    else
+      render json: { success: false, error: "Package not found" }, status: :not_found
     end
-
-    # Build dynamic message for Zapier
-    message = "Package #{@package.tracking_number} with #{@package.courier_name} updated. Status: #{@package.status}"
-
-    # Build payload for Zapier
-    payload = {
-      tracking_number: @package.tracking_number,
-      status: @package.status,
-      user_email: @package.user.email,
-      user_phone: @package.user.contact_number,
-      message: message
-    }
-
-    # Send to Zapier
-    zapier_url = ENV["ZAPIER_WEBHOOK_URL"]
-    send_to_zapier_payload(payload, zapier_url) if zapier_url.present?
-
-    render json: { success: true, package: @package }
   end
 
   private
@@ -80,43 +74,15 @@ class PackagesController < ApplicationController
   end
 
   def package_params
-    params.permit(:tracking_number, :courier_name, tracking_events: []).tap do |whitelisted|
-      whitelisted[:tracking_events] = JSON.parse(params[:tracking_events]) if params[:tracking_events].present?
-    end
+    params.permit(:tracking_number, :courier_name, :status, tracking_events: [])
   end
 
-  # Send package info to Zapier
-  def send_to_zapier(package, message)
-    payload = {
-      tracking_number: package.tracking_number,
-      status: package.status,
-      user_phone: package.user.contact_number,
-      user_email: package.user.email,
-      message: message
-    }
+  # merge webhook + existing events (no duplicates)
+  def merge_tracking_events(existing, incoming)
+    existing ||= []
+    incoming ||= []
 
-    zapier_url = ENV["ZAPIER_WEBHOOK_URL"]
-    return unless zapier_url.present?
-
-    uri = URI(zapier_url)
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = true
-    request = Net::HTTP::Post.new(uri, "Content-Type" => "application/json")
-    request.body = payload.to_json
-    http.request(request)
-  rescue => e
-    Rails.logger.error "Zapier webhook error: #{e.message}"
-  end
-
-  # Optional separate method for payload sending
-  def send_to_zapier_payload(payload, url)
-    uri = URI(url)
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = true
-    request = Net::HTTP::Post.new(uri, "Content-Type" => "application/json")
-    request.body = payload.to_json
-    http.request(request)
-  rescue => e
-    Rails.logger.error "Zapier webhook error: #{e.message}"
+    combined = (existing + incoming).uniq { |e| [ e["status"], e["date"] ] }
+    combined.sort_by { |e| e["date"] }.reverse # newest first
   end
 end

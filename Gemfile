@@ -73,3 +73,5 @@ group :development, :test do
   # Code Quality
   gem "rubocop", require: false
 end
+
+gem "twilio-ruby", "~> 7.7.1"

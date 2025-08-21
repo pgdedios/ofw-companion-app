@@ -17,7 +17,7 @@
     <%= link_to package_path(pkg) do%>
       <strong>Tracking Number:</strong> <%= pkg.tracking_number %> |
       <strong>Courier:</strong> <%= pkg.courier_name %> |
-      <strong>Status:</strong> <%= current_status %>
+      <strong>Status:</strong> <%= titleize_status(current_status) %>
     <% end %>
   </p>
 <% end %>
