@@ -1,0 +1,86 @@
+<h1>Track a New Package</h1>
+
+<%= form_with url: new_package_path, method: :get, local: true do |f| %>
+  <div>
+    <%= f.label :tracking_number, "Tracking Number" %>
+    <%= f.text_field :tracking_number, required: true %>
+  </div>
+
+  <div>
+    <%= f.label :carrier, "Carrier Name / Code (optional)" %>
+    <%= f.search_field :carrier,
+        list: "carriers",
+        placeholder: "Type to search...",
+        class: "border rounded px-2 py-1 w-full" %>
+
+    <datalist id="carriers">
+      <% @carriers.each do |c| %>
+        <option value="<%= c["key"] %>"><%= c["_name"] %></option>
+      <% end %>
+    </datalist>
+  </div>
+
+  <div>
+    <%= f.submit "Track" %>
+  </div>
+<% end %>
+
+<%# Tracking results with status: NotFound is rejected %>
+<% valid_details = @tracking_details.reject { |entry| [nil, "NotFound", "Null", "Nil"].include?(entry[:status]) } %>
+
+<% if valid_details.any? %>
+  <h2>Tracking Results</h2>
+  <% valid_details.each do |entry| %>
+    <div style="margin-bottom: 30px; padding: 10px; border: 1px solid #ccc;">
+      <p><strong>Tracking Number:</strong> <%= entry[:tracking_number] %></p>
+      <p><strong>Carrier Code:</strong> <%= entry[:carrier_code] %></p>
+      <p><strong>Carrier Name:</strong> <%= entry[:carrier_name] %></p>
+      <p><strong>Status:</strong> <%= titleize_status(entry[:status]) %> | <%= entry[:status_description] %></p>
+      <p><strong>Pick-up Date:</strong> <%= entry[:pickup_date] ? Time.use_zone(current_user.time_zone) { entry[:pickup_date].in_time_zone.strftime("%b %d, %Y %I:%M %p") } : "N/A" %>
+      <p><strong>Days In Transit:</strong> <%= entry[:current_days_in_transit] %></p>
+      
+      
+      <!--
+      <p><strong>Ship Date:</strong> <%= entry[:ship_date] %></p>
+      -->
+      <% if entry[:recipient_phone].present? %>
+        <p><strong>Recipient Phone:</strong> <%= entry[:recipient_phone] %></p>
+      <% end %>    
+      <p><strong>Estimated Delivery:</strong> <%= entry[:estimated_delivery] || "Not Specified" %></p>
+      <p>
+        <strong>Origin:</strong>
+        <%= [entry[:origin_city], entry[:origin_state], entry[:origin_country]].select(&:present?).join(", ") %> |
+        <strong>Destination:</strong>
+        <%= [entry[:destination_city], entry[:destination_state], entry[:destination_country]].select(&:present?).join(", ") %>
+      </p>
+      <p><strong>Provider Name:</strong> <%= entry[:carrier_name] %></p>
+      <p><strong>Alias:</strong> <%= entry[:carrier_alias] %></p>
+      <p><strong>Tel:</strong> <%= entry[:carrier_tel] %></p>
+      <p><strong>Homepage:</strong> <%= entry[:carrier_homepage] %></p>
+      <p><strong>Country:</strong> <%= entry[:carrier_country] %></p>
+
+      <h3>History Events</h3>
+      <% if entry[:events].present? %>
+        <ul>
+          <% entry[:events].each do |event| %>
+            <li>
+              <%= event["time_utc"] ? Time.use_zone(current_user.time_zone) { event["time_utc"].in_time_zone.strftime("%b %d, %Y %I:%M %p") } : "N/A"%> - 
+              <%= event["location"] %> -
+              <%= event["description"] %> 
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p>No history events available.</p>
+      <% end %>
+
+      <!-- Add Package Button -->
+      <%= form_with url: packages_path, method: :post, local: true do |f| %>
+        <%= hidden_field_tag :tracking_number, entry[:tracking_number] %>
+        <%= hidden_field_tag :courier_name, entry[:carrier_name] %>
+        <%= hidden_field_tag :tracking_events, entry[:events].to_json %>
+        <%= f.submit "Add Package" %>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>
