@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_08_15_090101) do
+ActiveRecord::Schema[7.2].define(version: 2025_08_21_122609) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -26,13 +26,15 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_15_090101) do
   create_table "packages", force: :cascade do |t|
     t.string "tracking_number"
     t.string "courier_name"
-    t.integer "status"
+    t.string "status"
     t.string "last_location"
     t.datetime "last_update"
     t.datetime "expected_delivery"
     t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.jsonb "tracking_events", default: [], null: false
+    t.index ["user_id", "courier_name", "tracking_number"], name: "index_packages_on_user_courier_tracking", unique: true
     t.index ["user_id"], name: "index_packages_on_user_id"
   end
 
@@ -52,6 +54,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_15_090101) do
     t.string "current_address", default: ""
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "time_zone", default: "UTC", null: false
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true

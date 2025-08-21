@@ -2,73 +2,23 @@
   <%= link_to "Back to Dashboard", dashboard_index_path%>
 </div>
 
-<h1>Package Tracking</h1>
+<div>
+  <%= link_to "New Package", new_package_path %>
+</div>
 
-<%= form_with url: packages_path, method: :get, local: true do |f| %>
-  <div>
-    <%= f.label :tracking_number, "Tracking Number" %>
-    <%= f.text_field :tracking_number, required: true %>
-  </div>
+<h1>My Packages</h1>
 
-  <div>
-    <%= f.label :carrier, "Carrier Code (optional)" %>
-    <%= f.search_field :carrier,
-        list: "carriers",
-        placeholder: "Type to search...",
-        class: "border rounded px-2 py-1 w-full" %>
+<% @packages.each do |pkg| %>
+  <!-- Find the first non-nil stage in events -->
+  <% last_stage_event = pkg.tracking_events.find { |e| e["stage"].present? } %>
+  <% current_status = last_stage_event ? last_stage_event["stage"] : "Unknown" %>
 
-    <datalist id="carriers">
-      <% @carriers.each do |c| %>
-        <option value="<%= c["key"] %>"><%= c["_name"] %></option>
-      <% end %>
-    </datalist>
-  </div>
-
-  <div>
-    <%= f.submit "Track" %>
-  </div>
+  <p>
+    <%= link_to package_path(pkg) do%>
+      <strong>Tracking Number:</strong> <%= pkg.tracking_number %> |
+      <strong>Courier:</strong> <%= pkg.courier_name %> |
+      <strong>Status:</strong> <%= titleize_status(current_status) %>
+    <% end %>
+  </p>
 <% end %>
 
-<% if @tracking_details.any? %>
-  <h2>Tracking Results</h2>
-  <% @tracking_details.each do |entry| %>
-    <div style="margin-bottom: 30px; padding: 10px; border: 1px solid #ccc;">
-      <p><strong>Tracking Number:</strong> <%= entry[:tracking_number] %></p>
-      <p><strong>Carrier Code:</strong> <%= entry[:carrier_code] %></p>
-      <p><strong>Carrier Name:</strong> <%= entry[:carrier_name] %></p>
-      <p><strong>Status:</strong> <%= entry[:status] %></p>
-      <p><strong>Stage:</strong> <%= entry[:stage] %></p>
-      <p><strong>Sub-status:</strong> <%= entry[:sub_status] %></p>
-      <p><strong>Current Days In Transit:</strong> <%= entry[:current_days_in_transit] %></p>
-      <p><strong>Total Days In Transit:</strong> <%= entry[:total_days_in_transit] %></p>
-      
-      
-      <!--
-      <p><strong>Ship Date:</strong> <%= entry[:ship_date] %></p>
-      <p><strong>Pick-up Date:</strong> <%= entry[:pickup_date] || "N/A" %></p>
-      -->
-      <p><strong>Recipient Phone:</strong> <%= entry[:recipient_phone] || "N/A" %></p>
-      <p><strong>Estimated Delivery:</strong> <%= entry[:estimated_delivery] || "N/A" %></p>
-      <p><strong>Origin:</strong> <%= entry[:origin_country] %> | <strong>Destination:</strong> <%= entry[:destination_country] %></p>
-      <p><strong>Provider Name:</strong> <%= entry[:carrier_name] %></p>
-      <p><strong>Alias:</strong> <%= entry[:carrier_alias] %></p>
-      <p><strong>Tel:</strong> <%= entry[:carrier_tel] %></p>
-      <p><strong>Homepage:</strong> <%= entry[:carrier_homepage] %></p>
-      <p><strong>Country:</strong> <%= entry[:carrier_country] %></p>
-
-      <h3>History Events</h3>
-      <% if entry[:events].any? %>
-        <ul>
-          <% entry[:events].each do |event| %>
-            <li>
-              <%= event["time_iso"] || event["time_utc"] %> - 
-              <%= event["description"] %> 
-            </li>
-          <% end %>
-        </ul>
-      <% else %>
-        <p>No history events available.</p>
-      <% end %>
-    </div>
-  <% end %>
-<% end %>
