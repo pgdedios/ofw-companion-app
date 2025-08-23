@@ -1,31 +1,54 @@
 # app/services/package_webhook_service.rb
 class PackageWebhookService
-  def initialize(tracking_number)
+  def initialize(tracking_number, payload = nil)
     @tracking_number = tracking_number
+    @payload = payload
     @package = Package.find_by(tracking_number: tracking_number)
   end
 
   def process
     return false unless @package
+    return false unless @payload.present?
 
-    service = TrackingService.new(@package.tracking_number, @package.courier_name)
-    tracking_data = service.track.first
-    return false unless tracking_data
+    # Extract tracking data from webhook payload
+    data = @payload["data"] || {}
+    track_info = data["track_info"] || {}
+
+    # Use latest status for simple status string
+    latest_status = track_info["latest_status"] || {}
+    latest_event  = track_info["latest_event"] || {}
+    new_status    = latest_status["status"] || latest_event["stage"] || @package.status
+    last_location = latest_event["location"]
+
+    # Build tracking events array
+    incoming_events = []
+    providers = track_info.dig("tracking", "providers") || []
+
+    providers.each do |provider|
+      (provider["events"] || []).each do |e|
+        incoming_events << {
+          "stage"       => e["stage"] || e["sub_status"]&.split("_")&.first,
+          "sub_status"  => e["sub_status"],
+          "description" => e["description"],
+          "location"    => e["location"],
+          "time_iso"    => e["time_iso"],
+          "time_utc"    => e["time_utc"],
+          "address"     => e["address"] || {}
+        }
+      end
+    end
 
     old_events = @package.tracking_events || []
     old_status = @package.status
 
-    # Merge new events and update status
-    @package.merge_tracking_events!(tracking_data[:events])
-    @package.update(status: tracking_data[:status])
+    # Merge events and update package status/location
+    @package.merge_tracking_events!(incoming_events)
+    @package.update(status: new_status, last_location: last_location)
 
     # Notify user if changes occurred
     if old_events != @package.tracking_events || old_status != @package.status
       notify_user
     end
-
-    # Optionally, send to Zapier
-    send_to_zapier
 
     true
   end
@@ -34,38 +57,21 @@ class PackageWebhookService
 
   def notify_user
     user = @package.user
-    return unless user&.email.present?
+    return unless user
 
-    # Correct call:
-    UserMailer.status_update(user, @package).deliver_now
+    # notify user via email
+    UserMailer.status_update(user, @package).deliver_now if user.email.present?
 
+    # notify user via sms
     if user.contact_number.present?
-      TwilioService.send_sms(
-        user.contact_number,
-        "Package #{@package.tracking_number} updated. Status: #{@package.status}"
-      )
+      message = "Update on your package #{@package.tracking_number}: #{@package.status.to_s.gsub('_', ' ').capitalize}"
+
+      message = "Update on your package #{@package.tracking_number}: #{@package.status}. Details: #{@package.tracking_events}"
+      sms_service = IprogSmsService.new(api_token: ENV["IPROG_API_TOKEN"])
+      sms_service.send_sms(number: user.contact_number, message: message)
+
+      # sms_service = SemaphoreSmsService.new(api_key: ENV["SEMAPHORE_API_KEY"])
+      # sms_service.send_sms(message: message, number: user.contact_number)
     end
-  end
-
-  def send_to_zapier
-    payload = {
-      tracking_number: @package.tracking_number,
-      status: @package.status,
-      user_email: @package.user.email,
-      user_phone: @package.user.contact_number,
-      message: "Package #{@package.tracking_number} updated. Status: #{@package.status}"
-    }
-
-    zapier_url = ENV["ZAPIER_WEBHOOK_URL"]
-    return unless zapier_url.present?
-
-    uri = URI(zapier_url)
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = true
-    request = Net::HTTP::Post.new(uri, "Content-Type" => "application/json")
-    request.body = payload.to_json
-    http.request(request)
-  rescue => e
-    Rails.logger.error "Zapier webhook error: #{e.message}"
   end
 end

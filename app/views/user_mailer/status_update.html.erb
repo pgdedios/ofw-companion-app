@@ -5,7 +5,7 @@ Hello <%= @user.first_name %> <%= @user.last_name %>,
 <ul>
   <li>Status: <%= @package.status %></li>
   <li>Last update: <%= @last_update_time.strftime("%B %d, %Y %l:%M %p") %></li>
-  <li>Description: <%= @package.tracking_events.last["description"] %></li>
+  <li>Description: <%= @package.tracking_events.first["description"] %></li>
 </ul>
 
 <p>Thank you for using our service!</p>

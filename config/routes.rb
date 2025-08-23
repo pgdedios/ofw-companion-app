@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   # get "packages/index"
   get "home/index"
   get "dashboard/index"
+  post "/webhooks/17track", to: "packages#webhook_update"
 
   devise_for :users
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
