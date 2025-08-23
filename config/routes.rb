@@ -25,6 +25,8 @@ Rails.application.routes.draw do
         put :webhook_update
       end
     end
+
+    get 'currency_converter', to: 'currency_converter#index'
     root to: "dashboard#index", as: :authenticated_root
   end
 
