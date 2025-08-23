@@ -21,7 +21,13 @@ Rails.application.routes.draw do
 
   # Conditional root paths based on authentication
   authenticated :user do
-    resources :packages, only: [ :index, :show, :new, :create ]
+    resources :packages, only: [ :index, :show, :new, :create ] do
+      member do
+        put :webhook_update
+      end
+    end
+
+    get 'currency_converter', to: 'currency_converter#index'
     root to: "dashboard#index", as: :authenticated_root
   end
 
