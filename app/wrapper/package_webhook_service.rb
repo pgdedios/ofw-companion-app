@@ -59,14 +59,19 @@ class PackageWebhookService
     user = @package.user
     return unless user
 
+    # notify user via email
     UserMailer.status_update(user, @package).deliver_now if user.email.present?
 
-    # Uncomment to send SMS
-    # if user.contact_number.present?
-    #   TwilioService.send_sms(
-    #     user.contact_number,
-    #     "Package #{@package.tracking_number} updated. Status: #{@package.status}"
-    #   )
-    # end
+    # notify user via sms
+    if user.contact_number.present?
+      message = "Update on your package #{@package.tracking_number}: #{@package.status.to_s.gsub('_', ' ').capitalize}"
+
+      message = "Update on your package #{@package.tracking_number}: #{@package.status}. Details: #{@package.tracking_events}"
+      sms_service = IprogSmsService.new(api_token: ENV["IPROG_API_TOKEN"])
+      sms_service.send_sms(number: user.contact_number, message: message)
+
+      # sms_service = SemaphoreSmsService.new(api_key: ENV["SEMAPHORE_API_KEY"])
+      # sms_service.send_sms(message: message, number: user.contact_number)
+    end
   end
 end
