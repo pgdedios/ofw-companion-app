@@ -23,14 +23,24 @@ class Package < ApplicationRecord
   def merge_tracking_events!(new_events)
     self.tracking_events ||= []
 
-    # Merge old and new events
-    merged = (self.tracking_events + new_events).uniq { |e| [ e["stage"], e["time_utc"] ] }
+    # Merge old and new events without duplicates
+    merged = (new_events + self.tracking_events).uniq { |e| [ e["time_utc"], e["description"] ] }
+
+    # Sort descending by UTC time so latest event is first
+    merged.sort_by! { |e| e["time_utc"] || e["time_iso"] }
+    merged.reverse!
+
+    # Update tracking_events
     self.tracking_events = merged
 
-    # Set status to latest stage or leave it unchanged if none
-    latest_event = merged.max_by { |e| e["time_utc"] }
+    # Update status based on latest event
+    latest_event = merged.first
     self.status = latest_event["stage"] || self.status
 
-    save!(validate: false)  # bypass validation to ensure merge always saves
+    # Update last_location and last_update
+    self.last_location = latest_event["location"] || latest_event.dig("address", "city")
+    self.last_update = latest_event["time_utc"]
+
+    save!(validate: false)
   end
 end

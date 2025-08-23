@@ -10,8 +10,12 @@
 
 <% @packages.each do |pkg| %>
   <!-- Find the first non-nil stage in events -->
-  <% last_stage_event = pkg.tracking_events.find { |e| e["stage"].present? } %>
-  <% current_status = last_stage_event ? last_stage_event["stage"] : "Unknown" %>
+  <% last_stage_event = pkg.tracking_events.find { |e| e["stage"].present? || e["sub_status"].present? } %>
+  <% current_status = if last_stage_event
+                        last_stage_event["stage"].presence || last_stage_event["sub_status"]&.split("_")&.first
+                      else
+                        "Unknown"
+                      end %>
 
   <p>
     <%= link_to package_path(pkg) do%>
