@@ -1,6 +1,7 @@
 class PackagesController < ApplicationController
-  before_action :authenticate_user!
-  before_action :set_package, only: [ :show, :webhook_update ]
+  skip_before_action :verify_authenticity_token, only: [ :webhook_update ] # required for external webhook
+  before_action :authenticate_user!, except: [ :webhook_update ]
+  before_action :set_package, only: [ :show ]
 
   def index
     @packages = current_user.packages.order(created_at: :desc)
@@ -11,32 +12,28 @@ class PackagesController < ApplicationController
     tn = params[:tracking_number]
     carrier = params[:carrier]
 
-    if tn.present?
-      @tracking_details = TrackingService.new(tn, carrier).track
-    else
-      @tracking_details = []
-    end
+    @tracking_details =
+      if tn.present?
+        TrackingService.new(tn, carrier).track
+      else
+        []
+      end
   end
 
   def show
-    @package = current_user.packages.find(params[:id])
+    # @package = current_user.packages.find(params[:id])
     @tracking_details = TrackingService.new(@package.tracking_number, @package.courier_name).track
   end
 
   def create
     @package = current_user.packages.new(
       tracking_number: params[:tracking_number],
-      courier_name: params[:courier_name]
+      courier_name: params[:courier_name],
+      tracking_events: safe_parse_events(params[:tracking_events])
     )
 
-    # Parse tracking_events JSON from hidden field
-    @package.tracking_events = JSON.parse(params[:tracking_events]) rescue []
-
-    # Get the official status from TrackingService
     tracking_details = TrackingService.new(@package.tracking_number, @package.courier_name).track
-    if tracking_details.any?
-      @package.status = tracking_details.first[:status]
-    end
+    @package.status = tracking_details.first[:status] if tracking_details.any?
 
     if @package.save
       redirect_to packages_path, notice: "Package added."
@@ -46,24 +43,16 @@ class PackagesController < ApplicationController
     end
   end
 
-  skip_before_action :verify_authenticity_token, only: [ :webhook_update ] # required for external webhook
   def webhook_update
-    payload = request.raw_post
-    data = JSON.parse(payload) rescue {}
+    data = JSON.parse(request.raw_post) rescue {}
+    tracking_number = data["tracking_number"] || data.dig("data", "number")
 
-    tracking_number = data.dig("data", "number")
-    events = data.dig("data", "origin_info", "trackinfo") || []
+    service = PackageWebhookService.new(tracking_number, data) # pass payload in
 
-    package = Package.find_by(tracking_number: tracking_number)
-
-    if package
-      package.update(
-        courier_name: data.dig("data", "carrier_code"),
-        tracking_events: merge_tracking_events(package.tracking_events, events)
-      )
+    if service.process
       render json: { success: true }
     else
-      render json: { success: false, error: "Package not found" }, status: :not_found
+      render json: { success: false, error: "Package not found or no changes" }, status: :not_found
     end
   end
 
@@ -77,12 +66,17 @@ class PackagesController < ApplicationController
     params.permit(:tracking_number, :courier_name, :status, tracking_events: [])
   end
 
-  # merge webhook + existing events (no duplicates)
-  def merge_tracking_events(existing, incoming)
-    existing ||= []
-    incoming ||= []
-
-    combined = (existing + incoming).uniq { |e| [ e["status"], e["date"] ] }
-    combined.sort_by { |e| e["date"] }.reverse # newest first
+  def safe_parse_events(json_string)
+    JSON.parse(json_string) rescue []
   end
+
+  # Merge webhook + existing events (no duplicates, newest first)
+  # def merge_tracking_events(existing, incoming)
+  #   existing ||= []
+  #   incoming ||= []
+  #   (existing + incoming)
+  #     .uniq { |e| [ e["status"], e["date"] ] }
+  #     .sort_by { |e| e["date"] }
+  #     .reverse
+  # end
 end

@@ -56,16 +56,16 @@ class TrackingService
       provider_info = providers.first&.dig("provider") || {}
 
       # Map events with flags
-      formatted_events = events.map do |e|
-        {
-          "time_utc" => e["time_utc"],
-          "stage" => (e["stage"].presence || e["sub_status"]&.split("_")&.first),
-          "description" => e["description"],
-          "location" => e["location"],
-          "sms_sent" => false,
-          "email_sent" => false
-        }
-      end
+      # formatted_events = events.map do |e|
+      #   {
+      #     "time_utc" => e["time_utc"],
+      #     "stage" => (e["stage"].presence || e["sub_status"]&.split("_")&.first),
+      #     "description" => e["description"],
+      #     "location" => e["location"],
+      #     "sms_sent" => false,
+      #     "email_sent" => false
+      #   }
+      # end
 
       {
         # carrier info
@@ -94,7 +94,7 @@ class TrackingService
         current_days_in_transit: time_metrics["days_of_transit"],
 
         # events history
-        events: formatted_events
+        events: events
       }
     end
   end
