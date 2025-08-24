@@ -21,19 +21,34 @@ class PackagesController < ApplicationController
   end
 
   def show
-    # @package = current_user.packages.find(params[:id])
-    @tracking_details = TrackingService.new(@package.tracking_number, @package.courier_name).track
+    @events = if @package.tracking_events.is_a?(Hash) && @package.tracking_events["events"].is_a?(Array)
+              @package.tracking_events["events"].sort_by { |e| e["time_utc"] }.reverse
+    else
+              []
+    end
+
+    tn = params[:tracking_number]
+    carrier = params[:carrier]
+
+    @tracking_details = TrackingService.new(@package.tracking_number, @package.carrier_code).track
   end
 
   def create
     @package = current_user.packages.new(
       tracking_number: params[:tracking_number],
       courier_name: params[:courier_name],
-      tracking_events: safe_parse_events(params[:tracking_events])
+      carrier_code: params[:carrier_code],
+      status: params[:status],
+      last_location: params[:last_location],
+      last_update: params[:last_update],
+      expected_delivery: params[:expected_delivery],
+      latest_description: params[:latest_description],
+      latest_stage: params[:latest_stage],
+      latest_substatus: params[:latest_substatus],
+      tracking_provider: params[:tracking_provider],
+      tracking_events: safe_parse_events(params[:tracking_events]),
+      latest_event_raw: safe_parse_events(params[:latest_event_raw])
     )
-
-    tracking_details = TrackingService.new(@package.tracking_number, @package.courier_name).track
-    @package.status = tracking_details.first[:status] if tracking_details.any?
 
     if @package.save
       redirect_to packages_path, notice: "Package added."
@@ -63,7 +78,23 @@ class PackagesController < ApplicationController
   end
 
   def package_params
-    params.permit(:tracking_number, :courier_name, :status, tracking_events: [])
+    params.permit(
+      :tracking_number,
+      :courier_name,
+      :carrier_code,
+      :status,
+      :sub_status,
+      :pickup_date,
+      :estimated_delivery,
+      :origin_city,
+      :origin_state,
+      :origin_country,
+      :destination_city,
+      :destination_state,
+      :destination_country,
+      tracking_events: [],
+      latest_event_raw: []
+    )
   end
 
   def safe_parse_events(json_string)

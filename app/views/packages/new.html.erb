@@ -1,5 +1,6 @@
 <h1>Track a New Package</h1>
 
+<!-- Form to Track Package -->
 <%= form_with url: new_package_path, method: :get, local: true do |f| %>
   <div>
     <%= f.label :tracking_number, "Tracking Number" %>
@@ -25,7 +26,7 @@
   </div>
 <% end %>
 
-<%# Tracking results with status: NotFound is rejected %>
+<!-- Preview Details of API Fetch -->
 <% valid_details = @tracking_details.reject { |entry| [nil, "NotFound", "Null", "Nil"].include?(entry[:status]) } %>
 
 <% if valid_details.any? %>
@@ -38,14 +39,11 @@
       <p><strong>Status:</strong> <%= titleize_status(entry[:status]) %> | <%= entry[:status_description] %></p>
       <p><strong>Pick-up Date:</strong> <%= entry[:pickup_date] ? Time.use_zone(current_user.time_zone) { entry[:pickup_date].in_time_zone.strftime("%b %d, %Y %I:%M %p") } : "N/A" %>
       <p><strong>Days In Transit:</strong> <%= entry[:current_days_in_transit] %></p>
-      
-      
-      <!--
-      <p><strong>Ship Date:</strong> <%= entry[:ship_date] %></p>
-      -->
+
       <% if entry[:recipient_phone].present? %>
         <p><strong>Recipient Phone:</strong> <%= entry[:recipient_phone] %></p>
-      <% end %>    
+      <% end %>
+      
       <p><strong>Estimated Delivery:</strong> <%= entry[:estimated_delivery] || "Not Specified" %></p>
       <p>
         <strong>Origin:</strong>
@@ -76,9 +74,25 @@
 
       <!-- Add Package Button -->
       <%= form_with url: packages_path, method: :post, local: true do |f| %>
+        <% latest_event = entry[:events]&.first || {} %>
+        <% last_location =
+            latest_event["location"].presence ||
+            [latest_event.dig("address", "city"), latest_event.dig("address", "state")].compact.join(", ").presence ||
+            "Unknown" %>
+
         <%= hidden_field_tag :tracking_number, entry[:tracking_number] %>
+        <%= hidden_field_tag :carrier_code, entry[:carrier_code] %>
         <%= hidden_field_tag :courier_name, entry[:carrier_name] %>
-        <%= hidden_field_tag :tracking_events, entry[:events].to_json %>
+        <%= hidden_field_tag :status, entry[:status] %>
+        <%= hidden_field_tag :last_location, last_location %>
+        <%= hidden_field_tag :last_update, latest_event["time_utc"] %>
+        <%= hidden_field_tag :expected_delivery, entry[:estimated_delivery] %>
+        <%= hidden_field_tag :latest_description, entry[:status_description] %>
+        <%= hidden_field_tag :latest_stage, entry[:status] %>
+        <%= hidden_field_tag :latest_substatus, entry[:sub_status] %>
+        <%= hidden_field_tag :tracking_provider, entry[:carrier_name] %>
+        <%= hidden_field_tag :tracking_events, entry.to_json %>
+        <%= hidden_field_tag :latest_event_raw, entry[:events]&.first.to_json %>
         <%= f.submit "Add Package" %>
       <% end %>
     </div>

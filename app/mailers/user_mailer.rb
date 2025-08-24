@@ -5,11 +5,10 @@ class UserMailer < ApplicationMailer
     @user = user
     @package = package
 
-    utc_time = Time.iso8601(@package.tracking_events.first["time_utc"])
-    Rails.logger.info "DEBUG UTC: #{utc_time}"
-
-    @last_update_time = utc_time.in_time_zone(user.time_zone)
-    Rails.logger.info "DEBUG USER TZ (#{user.time_zone}): #{@last_update_time}"
+    # Use last_update column instead of digging into JSON
+    @last_update_time = @package.last_update&.in_time_zone(user.time_zone)
+    @last_location = @package.last_location
+    @latest_description = @package.latest_description
 
     mail(to: @user.email, subject: "Update on your package #{package.tracking_number}")
   end

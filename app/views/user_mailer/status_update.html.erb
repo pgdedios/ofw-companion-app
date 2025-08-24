@@ -4,8 +4,9 @@ Hello <%= @user.first_name %> <%= @user.last_name %>,
 
 <ul>
   <li>Status: <%= @package.status %></li>
-  <li>Last update: <%= @last_update_time.strftime("%B %d, %Y %l:%M %p") %></li>
-  <li>Description: <%= @package.tracking_events.first["description"] %></li>
+  <li>Last update: <%= @last_update_time.strftime("%B %d, %Y %l:%M %p") if @last_update_time %></li>
+  <li>Location: <%= @package.last_location %></li>
+  <li>Description: <%= @package.latest_description %></li>
 </ul>
 
-<p>Thank you for using our service!</p>
+<p>Thank you for using OFW Companion!</p>
