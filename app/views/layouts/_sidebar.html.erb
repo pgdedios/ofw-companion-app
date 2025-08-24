@@ -15,13 +15,8 @@
     <!-- Logo -->
     <div class="flex items-center justify-between w-full">
       <div class="flex items-center gap-2 text-2xl tracking-tight">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-          fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"
-          stroke-linejoin="round" class="lucide lucide-trending-up-icon lucide-trending-up w-[24px] h-[24px]">
-          <path d="M16 7h6v6" />
-          <path d="m22 7-8.5 8.5-5-5L2 17" />
-        </svg>
-        <h2 class="inline tracking-tight text-[#222222] font-semibold">OFW Companion</h2>
+        <%= image_tag "ofw-companion-logo.svg", alt: "ofw-logo", class: "w-[6rem] h-[6rem]" %>
+      <!-- <h2 class="inline tracking-tight text-[#222222] font-semibold"> Companion</h2> -->
       </div>
     </div>
 
@@ -57,7 +52,7 @@
     <!-- BOTTOM SECTION -->
     <div id="user-info" class="flex justify-between gap-3 mt-auto">
       <div class="flex justify-center items-center gap-2">
-        <div class="rounded-lg h-8 w-8 bg-blue-600 flex justify-center items-center hover:bg-blue-700">
+        <div class="rounded-lg h-8 w-8 bg-gray-800 flex justify-center items-center hover:bg-blue-700">
           <svg class="w-5 h-5 text-gray-200" xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round">
@@ -96,12 +91,7 @@
     
     <!-- Logo (clickable, goes to dashboard) -->
     <a href="#" class="flex items-center">
-      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
-        fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"
-        stroke-linejoin="round" class="lucide lucide-trending-up-icon lucide-trending-up">
-        <path d="M16 7h6v6" />
-        <path d="m22 7-8.5 8.5-5-5L2 17" />
-      </svg>
+      <%= image_tag "ofw-companion-logo.svg", alt: "ofw-logo", class: "w-[6rem] h-[6rem]" %>
     </a>
 
     <!-- Burger Menu Button -->
