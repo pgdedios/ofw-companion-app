@@ -27,7 +27,11 @@ Rails.application.routes.draw do
       end
     end
 
+    # Currency converter routes
     get 'currency_converter', to: 'currency_converter#index'
+    post 'currency_converter/convert', to: 'currency_converter#convert'
+   
+    
     root to: "dashboard#index", as: :authenticated_root
   end
 
