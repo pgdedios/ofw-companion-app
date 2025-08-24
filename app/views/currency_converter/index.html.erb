@@ -1,137 +1,129 @@
-
 <div>
   <%= render "layouts/sidebar" %>
 </div>
 
 <div class="flex-1 p-10 lg:ml-64 min-h-dvh">
-
-<div class="currency-converter">
   <h1>Currency Converter</h1>
-  
+
   <%= form_with url: "/currency_converter/convert", method: :post, local: true, data: { turbo: false } do |form| %>
     <div class="form-group">
       <%= form.label :amount, "Amount" %>
       <%= form.number_field :amount, step: 0.01, min: 0, required: true, class: "form-control", value: @original_amount %>
     </div>
-    
+
+    <!-- From Currency -->
     <div class="form-group">
       <%= form.label :from_currency, "From Currency" %>
-      <%= form.select :from_currency, 
-          options_for_select([
-            ['🇺🇸 US Dollar', 'USD'],
-            ['🇪🇺 Euro', 'EUR'],
-            ['🇬🇧 British Pound', 'GBP'],
-            ['🇯🇵 Japanese Yen', 'JPY'],
-            ['🇨🇦 Canadian Dollar', 'CAD'],
-            ['🇦🇺 Australian Dollar', 'AUD'],
-            ['🇨🇭 Swiss Franc', 'CHF'],
-            ['🇨🇳 Chinese Yuan', 'CNY'],
-            ['🇸🇪 Swedish Krona', 'SEK'],
-            ['🇳🇿 New Zealand Dollar', 'NZD'],
-            ['🇳🇴 Norwegian Krone', 'NOK'],
-            ['🇸🇬 Singapore Dollar', 'SGD'],
-            ['🇭🇰 Hong Kong Dollar', 'HKD'],
-            ['🇰🇷 South Korean Won', 'KRW'],
-            ['🇧🇷 Brazilian Real', 'BRL'],
-            ['🇮🇳 Indian Rupee', 'INR'],
-            ['🇷🇺 Russian Ruble', 'RUB'],
-            ['🇿🇦 South African Rand', 'ZAR'],
-            ['🇵🇭 Philippine Peso', 'PHP'],
-            ['🇹🇭 Thai Baht', 'THB'],
-            ['🇲🇾 Malaysian Ringgit', 'MYR'],
-            ['🇮🇩 Indonesian Rupiah', 'IDR'],
-            ['🇻🇳 Vietnamese Dong', 'VND'],
-            ['🇲🇽 Mexican Peso', 'MXN'],
-            ['🇹🇷 Turkish Lira', 'TRY'],
-            ['🇮🇱 Israeli Shekel', 'ILS'],
-            ['🇸🇦 Saudi Riyal', 'SAR'],
-            ['🇦🇪 UAE Dirham', 'AED'],
-            ['🇪🇬 Egyptian Pound', 'EGP'],
-            ['🇰🇼 Kuwaiti Dinar', 'KWD'],
-            ['🇶🇦 Qatari Riyal', 'QAR'],
-            ['🇧🇭 Bahraini Dinar', 'BHD'],
-            ['🇴🇲 Omani Rial', 'OMR'],
-            ['🇯🇴 Jordanian Dinar', 'JOD'],
-            ['🇱🇧 Lebanese Pound', 'LBP'],
-            ['🇵🇰 Pakistani Rupee', 'PKR'],
-            ['🇧🇩 Bangladeshi Taka', 'BDT'],
-            ['🇱🇰 Sri Lankan Rupee', 'LKR'],
-            ['🇳🇵 Nepalese Rupee', 'NPR']
-          ], @from_currency), 
-          { prompt: 'Select currency' }, 
-          { required: true, class: "form-control" } %>
+      <%= render "currency_converter/currency_dropdown", name: "from_currency" %>
     </div>
-    
+
+    <!-- To Currency -->
     <div class="form-group">
       <%= form.label :to_currency, "To Currency" %>
-      <%= form.select :to_currency,
-          options_for_select([
-            ['🇵🇭 Philippine Peso', 'PHP'],
-            ['🇺🇸 US Dollar', 'USD'],
-            ['🇪🇺 Euro', 'EUR'],
-            ['🇬🇧 British Pound', 'GBP'],
-            ['🇯🇵 Japanese Yen', 'JPY'],
-            ['🇨🇦 Canadian Dollar', 'CAD'],
-            ['🇦🇺 Australian Dollar', 'AUD'],
-            ['🇨🇭 Swiss Franc', 'CHF'],
-            ['🇨🇳 Chinese Yuan', 'CNY'],
-            ['🇸🇪 Swedish Krona', 'SEK'],
-            ['🇳🇿 New Zealand Dollar', 'NZD'],
-            ['🇳🇴 Norwegian Krone', 'NOK'],
-            ['🇸🇬 Singapore Dollar', 'SGD'],
-            ['🇭🇰 Hong Kong Dollar', 'HKD'],
-            ['🇰🇷 South Korean Won', 'KRW'],
-            ['🇧🇷 Brazilian Real', 'BRL'],
-            ['🇮🇳 Indian Rupee', 'INR'],
-            ['🇷🇺 Russian Ruble', 'RUB'],
-            ['🇿🇦 South African Rand', 'ZAR'],
-            ['🇹🇭 Thai Baht', 'THB'],
-            ['🇲🇾 Malaysian Ringgit', 'MYR'],
-            ['🇮🇩 Indonesian Rupiah', 'IDR'],
-            ['🇻🇳 Vietnamese Dong', 'VND'],
-            ['🇲🇽 Mexican Peso', 'MXN'],
-            ['🇹🇷 Turkish Lira', 'TRY'],
-            ['🇮🇱 Israeli Shekel', 'ILS'],
-            ['🇸🇦 Saudi Riyal', 'SAR'],
-            ['🇦🇪 UAE Dirham', 'AED'],
-            ['🇪🇬 Egyptian Pound', 'EGP'],
-            ['🇰🇼 Kuwaiti Dinar', 'KWD'],
-            ['🇶🇦 Qatari Riyal', 'QAR'],
-            ['🇧🇭 Bahraini Dinar', 'BHD'],
-            ['🇴🇲 Omani Rial', 'OMR'],
-            ['🇯🇴 Jordanian Dinar', 'JOD'],
-            ['🇱🇧 Lebanese Pound', 'LBP'],
-            ['🇵🇰 Pakistani Rupee', 'PKR'],
-            ['🇧🇩 Bangladeshi Taka', 'BDT'],
-            ['🇱🇰 Sri Lankan Rupee', 'LKR'],
-            ['🇳🇵 Nepalese Rupee', 'NPR']
-          ], @to_currency || 'PHP'),
-          { prompt: 'Select currency' },
-          { required: true, class: "form-control" } %>
+      <%= render "currency_converter/currency_dropdown", name: "to_currency" %>
     </div>
-    
+
     <%= form.submit "Convert", class: "btn btn-primary" %>
   <% end %>
-  
+
   <% if @converted_amount %>
     <div class="conversion-result mt-4 p-3 bg-light border rounded">
       <h3>Conversion Result</h3>
       <p class="lead">
         <strong><%= number_with_precision(@original_amount, precision: 2) %> <%= @from_currency %></strong>
-        equals
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left-right-icon lucide-arrow-left-right"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg>
         <strong class="text-success"><%= number_with_precision(@converted_amount, precision: 2) %> <%= @to_currency %></strong>
       </p>
     </div>
   <% end %>
-  
+
   <% if flash[:error] %>
     <div class="alert alert-danger mt-3"><%= flash[:error] %></div>
   <% end %>
+
+
+
+
+
+
+
+
+  <!-- CSS -->
+  <style>
+    .custom-dropdown {
+      position: relative;
+      width: 100%;
+      cursor: pointer;
+    }
+
+    .custom-dropdown .selected {
+      padding: 10px;
+      border: 1px solid #ccc;
+      background: #fff;
+    }
+
+    .custom-dropdown .options {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      border: 1px solid #ccc;
+      background: #fff;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 100;
+    }
+
+    .custom-dropdown .option {
+      padding: 8px;
+      display: flex;
+      align-items: center;
+    }
+
+    .custom-dropdown .option:hover {
+      background: #f0f0f0;
+    }
+
+    .flag-icon {
+      width: 20px;
+      height: 14px;
+      margin-right: 8px;
+    }
+  </style>
+
+  <!-- JavaScript  -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll(".custom-dropdown").forEach(dropdown => {
+        const selected = dropdown.querySelector(".selected");
+        const options = dropdown.querySelector(".options");
+        const hiddenInput = dropdown.querySelector("input[type='hidden']");
+
+        // Toggle dropdown
+        selected.addEventListener("click", () => {
+          options.style.display = options.style.display === "block" ? "none" : "block";
+        });
+
+        // Choose option
+        options.querySelectorAll(".option").forEach(option => {
+          option.addEventListener("click", () => {
+            const value = option.getAttribute("data-value");
+            const text = option.innerHTML;
+
+            selected.innerHTML = text;
+            hiddenInput.value = value;
+            options.style.display = "none";
+          });
+        });
+
+        // Close if clicked outside
+        document.addEventListener("click", (e) => {
+          if (!dropdown.contains(e.target)) {
+            options.style.display = "none";
+          }
+        });
+      });
+    });
+  </script>
 </div>
-
-
-
-
-
-</div>
-

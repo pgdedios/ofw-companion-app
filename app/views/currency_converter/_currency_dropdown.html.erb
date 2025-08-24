@@ -1,0 +1,14 @@
+<div class="custom-dropdown" data-name="<%= name %>">
+  <div class="selected">
+    <span>Select currency</span>
+  </div>
+  <div class="options">
+    <% currency_list.each do |c| %>
+      <div class="option" data-value="<%= c[:code] %>">
+        <img src="<%= asset_path("flags/#{c[:flag]}.svg") %>" alt="<%= c[:name] %>" class="flag-icon">
+        <span><%= c[:code] %> - <%= c[:name] %></span>
+      </div>
+    <% end %>
+  </div>
+  <input type="hidden" name="<%= name %>" id="<%= name %>">
+</div>
