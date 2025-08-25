@@ -1,1 +1,153 @@
-<%= render "tracking_details", package: @package %>
+<div>
+  <%= render "layouts/sidebar" %>
+</div>
+
+<div class="flex-1 p-10 lg:ml-64 min-h-dvh bg-gray-50">
+  <div class="mb-4">
+    <%= link_to "Back to Packages", packages_path, class: "text-blue-600 hover:underline" %>
+  </div>
+  
+  <h1 class="text-2xl font-bold mb-4">Package Details</h1>
+  
+  <!-- Modal overlay -->
+  <div id="packageModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div class="bg-white w-11/12 max-w-3xl rounded-lg shadow-lg overflow-hidden">
+  
+      <!-- Modal header -->
+      <div class="flex justify-between items-center px-4 py-2 border-b">
+        <h2 class="text-lg font-semibold">Package Details</h2>
+        <button onclick="window.location='<%= packages_path %>'" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+      </div>
+  
+      <!-- Tabs -->
+      <div class="flex border-b">
+        <button id="infoTabBtn" onclick="showTab('info')" class="px-4 py-2 border-b-2 border-blue-600 text-blue-600">Info Details</button>
+        <button id="eventsTabBtn" onclick="showTab('events')" class="px-4 py-2 text-gray-500">Event History</button>
+        <button id="carrierTabBtn" onclick="showTab('carrier')" class="px-4 py-2 text-gray-500">Additional Info</button>
+      </div>
+  
+      <!-- Tab contents -->
+      <div class="p-4 max-h-[500px] overflow-y-auto">
+        <!-- Info Details Tab -->
+        <div id="infoTab">
+          <% latest_event = @package.latest_event_raw || {} %>
+          <% stage_value = @package.latest_stage.presence || @package.latest_substatus.presence || latest_event["sub_status"].to_s.split("_").first.presence || "N/A" %>
+          <% location_value = @package.last_location.presence || latest_event.dig("address","city").presence || latest_event.dig("address","state").presence || latest_event["location"].presence || "Unknown" %>
+          <% description_value = latest_event["description"].presence || @package.latest_description.presence || "N/A" %>
+          <% last_update_value = latest_event["time_utc"].presence || @package.last_update %>
+  
+          <p><strong>Tracking Number:</strong> <%= @package.tracking_number %></p>
+          <p><strong>Courier:</strong> <%= @package.courier_name.presence || "N/A" %></p>
+          <p><strong>Courier Code:</strong> <%= @package.carrier_code.presence || "N/A" %></p>
+          <p><strong>Status:</strong> <%= stage_value.gsub(/([a-z])([A-Z])/, '\1 \2').titleize %></p>
+          <p><strong>Last Location:</strong> <%= location_value %></p>
+          <p><strong>Last Update:</strong> <%= last_update_value ? Time.zone.parse(last_update_value.to_s).strftime("%b %d, %Y %I:%M %p") : "N/A" %></p>
+          <p><strong>Expected Delivery:</strong> <%= @package.expected_delivery ? @package.expected_delivery.strftime("%b %d, %Y") : "Not Specified" %></p>
+          <p><strong>Latest Description:</strong> <%= description_value %></p>
+        </div>
+  
+        <!-- Event History Tab -->
+        <div id="eventsTab" class="hidden">
+          <% events = @package.tracking_events.is_a?(Hash) && @package.tracking_events["events"].is_a?(Array) ? @package.tracking_events["events"].sort_by { |e| e["time_utc"] }.reverse : [] %>
+          <% if events.any? %>
+            <ul class="space-y-2">
+              <% events.each do |event| %>
+                <% stage_val = event["stage"].presence || event["sub_status"].to_s.split("_").first.presence || "N/A" %>
+                <% loc_val = event.dig("address","city").presence || event.dig("address","state").presence || event["location"].presence || "Unknown" %>
+                <% desc_val = event["description"].presence || "N/A" %>
+                <% time_val = event["time_utc"] %>
+                <li class="p-2 border rounded">
+                  <p><strong>Stage:</strong> <%= stage_val.gsub(/([a-z])([A-Z])/, '\1 \2').titleize %></p>
+                  <p><strong>Description:</strong> <%= desc_val %></p>
+                  <p><strong>Location:</strong> <%= loc_val %></p>
+                  <p><strong>Time:</strong> <%= time_val ? Time.zone.parse(time_val).strftime("%b %d, %Y %I:%M %p") : "N/A" %></p>
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <p>No events available.</p>
+          <% end %>
+        </div>
+      </div>
+  
+      <!-- Additional Info Tab -->
+      <div id="carrierTab" class="hidden p-4">
+        <% valid_details = @tracking_details.reject { |entry| [nil, "NotFound", "Null", "Nil"].include?(entry[:status]) } %>
+        <% valid_details.each do |entry| %>
+          <div style="margin-bottom: 30px; padding: 10px; border: 1px solid #ccc;">
+            <p><strong>Provider Name:</strong> <%= entry[:carrier_name] %></p>
+            <p><strong>Alias:</strong> <%= entry[:carrier_alias] %></p>
+            <p><strong>Tel:</strong> <%= entry[:carrier_tel] %></p>
+            <p><strong>Homepage:</strong> <%= entry[:carrier_homepage] %></p>
+            <p><strong>Country:</strong> <%= entry[:carrier_country] %></p>
+            <p><strong>Pick-up Date:</strong> <%= entry[:pickup_date] ? Time.use_zone(current_user.time_zone) { entry[:pickup_date].in_time_zone.strftime("%b %d, %Y %I:%M %p") } : "N/A" %>
+            <p><strong>Days In Transit:</strong> <%= entry[:current_days_in_transit] %></p>
+            <% if entry[:recipient_phone].present? %>
+              <p><strong>Recipient Phone:</strong> <%= entry[:recipient_phone] %></p>
+            <% end %>
+            <p><strong>Estimated Delivery:</strong> <%= entry[:estimated_delivery] || "Not Specified" %></p>
+            <p>
+              <strong>Origin:</strong>
+              <%= [entry[:origin_city], entry[:origin_state], entry[:origin_country]].select(&:present?).join(", ").presence || "Not Specified" %> |
+              <strong>Destination:</strong>
+              <%= [entry[:destination_city], entry[:destination_state], entry[:destination_country]].select(&:present?).join(", ").presence || "Not Specified" %>
+            </p>
+          </div>
+        <% end %>
+      </div>
+  
+      <!-- Modal footer -->
+      <div class="flex justify-end px-4 py-2 border-t">
+        <button onclick="window.location='<%= packages_path %>'" class="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300">Close</button>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    function showTab(tab) {
+      const infoTab = document.getElementById('infoTab');
+      const eventsTab = document.getElementById('eventsTab');
+      const carrierTab = document.getElementById('carrierTab'); // new tab
+  
+      const infoBtn = document.getElementById('infoTabBtn');
+      const eventsBtn = document.getElementById('eventsTabBtn');
+      const carrierBtn = document.getElementById('carrierTabBtn'); // new button
+  
+      // Hide all tabs and reset button styles
+      infoTab.classList.add('hidden');
+      eventsTab.classList.add('hidden');
+      carrierTab.classList.add('hidden');
+  
+      infoBtn.classList.remove('border-b-2','border-blue-600','text-blue-600');
+      infoBtn.classList.add('text-gray-500');
+  
+      eventsBtn.classList.remove('border-b-2','border-blue-600','text-blue-600');
+      eventsBtn.classList.add('text-gray-500');
+  
+      carrierBtn.classList.remove('border-b-2','border-blue-600','text-blue-600');
+      carrierBtn.classList.add('text-gray-500');
+  
+      // Show the selected tab and highlight its button
+      if(tab === 'info') {
+        infoTab.classList.remove('hidden');
+        infoBtn.classList.add('border-b-2','border-blue-600','text-blue-600');
+        infoBtn.classList.remove('text-gray-500');
+      } else if(tab === 'events') {
+        eventsTab.classList.remove('hidden');
+        eventsBtn.classList.add('border-b-2','border-blue-600','text-blue-600');
+        eventsBtn.classList.remove('text-gray-500');
+      } else if(tab === 'carrier') {
+        carrierTab.classList.remove('hidden');
+        carrierBtn.classList.add('border-b-2','border-blue-600','text-blue-600');
+        carrierBtn.classList.remove('text-gray-500');
+      }
+    }
+  
+    document.addEventListener("DOMContentLoaded", function() {
+      document.getElementById('packageModal').classList.remove('hidden');
+      showTab('info'); // default tab
+    });
+  </script>
+</div>
+
+

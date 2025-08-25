@@ -79,8 +79,8 @@ class TrackingService
 
         # package status
         status: latest_status["status"] || latest_event["stage"] || "Unknown",
-        status_description: latest_event["description"],
         sub_status: latest_status["sub_status"] || latest["sub_status"] || "Unknown",
+        status_description: latest_event["description"],
         origin_country: entry["origin_country"] || tracking_info.dig("shipping_info", "shipper_address", "country"),
         origin_city: entry["origin_city"] || tracking_info.dig("shipping_info", "shipper_address", "city"),
         origin_state: tracking_info.dig("shipping_info", "shipper_address", "state"),

@@ -1,4 +1,3 @@
-# app/services/package_webhook_service.rb
 class PackageWebhookService
   def initialize(tracking_number, payload = nil)
     @tracking_number = tracking_number
@@ -7,46 +6,36 @@ class PackageWebhookService
   end
 
   def process
-    return false unless @package
-    return false unless @payload.present?
+    return false unless @package && @payload.present?
 
-    # Extract tracking data from webhook payload
-    data = @payload["data"] || {}
-    track_info = data["track_info"] || {}
+    events = Array(@payload.dig("data", "track_info", "tracking", "providers", 0, "events")) || []
+    latest_event = events.first || {}
 
-    # Use latest status for simple status string
-    latest_status = track_info["latest_status"] || {}
-    latest_event  = track_info["latest_event"] || {}
-    new_status    = latest_status["status"] || latest_event["stage"] || @package.status
-    last_location = latest_event["location"]
-
-    # Build tracking events array
-    incoming_events = []
-    providers = track_info.dig("tracking", "providers") || []
-
-    providers.each do |provider|
-      (provider["events"] || []).each do |e|
-        incoming_events << {
-          "stage"       => e["stage"] || e["sub_status"]&.split("_")&.first,
-          "sub_status"  => e["sub_status"],
-          "description" => e["description"],
-          "location"    => e["location"],
-          "time_iso"    => e["time_iso"],
-          "time_utc"    => e["time_utc"],
-          "address"     => e["address"] || {}
-        }
-      end
+    # Determine values with fallbacks
+    last_update = latest_event["time_utc"] || latest_event["time_iso"]
+    stage = latest_event["stage"] || latest_event["sub_status"].to_s.split("_").first.gsub(/([a-z])([A-Z])/, '\1 \2').titleize
+    location = latest_event["location"] || begin
+      addr = latest_event.dig("address")
+      [ addr["city"], addr["state"] ].compact.join(", ") if addr
     end
+    description = latest_event["description"]
 
-    old_events = @package.tracking_events || []
-    old_status = @package.status
+    # Update only if something changed
+    if @package.tracking_events != events
+      # update package columns first
+      @package.update(
+        tracking_events: events,
+        status: stage || @package.status,
+        last_update: last_update,
+        last_location: location,
+        latest_description: description,
+        latest_stage: stage,
+        latest_substatus: latest_event["sub_status"],
+        latest_event_raw: latest_event,
+        tracking_provider: @payload.dig("data", "track_info", "tracking", "providers", 0, "provider", "name")
+      )
 
-    # Merge events and update package status/location
-    @package.merge_tracking_events!(incoming_events)
-    @package.update(status: new_status, last_location: last_location)
-
-    # Notify user if changes occurred
-    if old_events != @package.tracking_events || old_status != @package.status
+      # notify user after updating columns
       notify_user
     end
 
@@ -59,19 +48,16 @@ class PackageWebhookService
     user = @package.user
     return unless user
 
-    # notify user via email
-    UserMailer.status_update(user, @package).deliver_now if user.email.present?
+    if user.email.present?
+      # Pass package and safely read last_update in mailer
+      @last_update_time = @package.last_update
+      UserMailer.status_update(user, @package).deliver_now
+    end
 
-    # notify user via sms
     if user.contact_number.present?
-      message = "Update on your package #{@package.tracking_number}: #{@package.status.to_s.gsub('_', ' ').capitalize}"
-
-      message = "Update on your package #{@package.tracking_number}: #{@package.status}. Details: #{@package.tracking_events}"
+      message = "Update on your package #{@package.tracking_number}:\n#{@package.status} at #{@package.last_location}.\nThank you for using OFW Companion"
       sms_service = IprogSmsService.new(api_token: ENV["IPROG_API_TOKEN"])
       sms_service.send_sms(number: user.contact_number, message: message)
-
-      # sms_service = SemaphoreSmsService.new(api_key: ENV["SEMAPHORE_API_KEY"])
-      # sms_service.send_sms(message: message, number: user.contact_number)
     end
   end
 end
