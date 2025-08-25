@@ -1,0 +1,17 @@
+<h1>Saved Remittance Centers</h1>
+
+<%= link_to "Add Nearby Remittance Centers", places_path %> </br>
+
+<% if @remittance_centers.any? %>
+  <ul>
+    <% @remittance_centers.each do |center| %>
+      <li>
+        <strong><%= center.name %></strong><br>
+        <%= center.address %><br>
+        <%= button_to "Remove", remittance_center_path(center), method: :delete, data: { confirm: "Are you sure?" } %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>You haven't saved any remittance centers yet.</p>
+<% end %>
