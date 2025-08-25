@@ -1,55 +1,124 @@
-<h2>Sign up</h2>
+<!-- Signup Page with Fade-in Animations -->
+<style>
+  .fade-in {
+    opacity: 0;
+    animation: fadeIn 1s ease-in-out forwards;
+  }
+  .delay-1 {
+    animation-delay: 0.3s;
+  }
+  .delay-2 {
+    animation-delay: 0.6s;
+  }
+  .delay-3 {
+    animation-delay: 0.9s;
+  }
 
-<%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
-  <%= render "devise/shared/error_messages", resource: resource %>
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
 
-  <div class="field">
-    <%= f.label :first_name %><br />
-    <%= f.text_field :first_name, autocomplete: "first-name"%>
+<!-- Outer Container -->
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-blue-200 to-blue-50 fade-in delay-1">
+
+  <!-- Wrapper -->
+  <div class="flex flex-col md:flex-row w-full h-auto md:h-screen bg-white shadow-lg overflow-hidden">
+
+    <!-- Left Graphic Column -->
+    <div class="hidden md:flex flex-col w-1/2 bg-blue-700 p-8">
+      <!-- Logo -->
+      <div class="mb-4 fade-in delay-1">
+        <%= image_tag "ofw-companion-logo", alt: "OFW Companion Logo", class: "w-12 h-auto" %>
+      </div>
+      <!-- Illustration -->
+      <div class="flex-grow flex items-center justify-center fade-in delay-2">
+        <%= image_tag "devise-graphics/register.svg", alt: "Sign up Graphic", class: "w-3/4 h-auto" %>
+      </div>
+    </div>
+
+    <!-- Right Sign Up Form Column -->
+    <div class="w-full md:w-1/2 flex flex-col justify-center items-center p-6 sm:p-10 fade-in delay-3">
+      <h2 class="text-2xl sm:text-3xl font-bold text-center text-blue-600 mb-6 sm:mb-8">Sign up</h2>
+
+      <div class="w-full max-w-md">
+        <%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+          <%= render "devise/shared/error_messages", resource: resource %>
+
+          <div class="space-y-6 mb-4">
+
+            <!-- First + Last Name -->
+            <div class="flex flex-col sm:flex-row gap-4">
+              <div class="flex-1 space-y-2">
+                <%= f.label :first_name, class: "block text-sm font-medium text-gray-700" %>
+                <%= f.text_field :first_name, autocomplete: "given-name", class: "w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600" %>
+              </div>
+
+              <div class="flex-1 space-y-2">
+                <%= f.label :last_name, class: "block text-sm font-medium text-gray-700" %>
+                <%= f.text_field :last_name, autocomplete: "family-name", class: "w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600" %>
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div class="space-y-2">
+              <%= f.label :email, class: "block text-sm font-medium text-gray-700" %>
+              <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600" %>
+            </div>
+
+            <!-- Address -->
+            <div class="space-y-2">
+              <%= f.label :current_address, "Address", class: "block text-sm font-medium text-gray-700" %>
+              <%= f.text_field :current_address, class: "w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600" %>
+            </div>
+
+            <!-- Contact + Timezone -->
+            <div class="flex flex-col sm:flex-row gap-4">
+              <div class="flex-1 space-y-2">
+                <%= f.label :contact_number, class: "block text-sm font-medium text-gray-700" %>
+                <%= f.text_field :contact_number, class: "w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600" %>
+              </div>
+
+              <div class="flex-1 space-y-2">
+                <%= f.label :time_zone, class: "block text-sm font-medium text-gray-700" %>
+                <%= f.time_zone_select :time_zone, nil, { default: "UTC" }, { class: "w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600" } %>
+              </div>
+            </div>
+
+            <!-- Password -->
+            <div class="space-y-2">
+              <%= f.label :password, class: "block text-sm font-medium text-gray-700" %>
+              <% if @minimum_password_length %>
+                <em class="text-xs text-gray-500">(<%= @minimum_password_length %> characters minimum)</em>
+              <% end %>
+              <%= f.password_field :password, autocomplete: "new-password", class: "w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600" %>
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="space-y-2">
+              <%= f.label :password_confirmation, class: "block text-sm font-medium text-gray-700" %>
+              <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600" %>
+            </div>
+
+            <!-- Submit -->
+            <div>
+              <%= f.submit "Sign up", class: "w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 transition cursor-pointer" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Links -->
+      <div class="text-center text-sm text-gray-600 mt-4">
+        <%= render "devise/shared/links" %>
+      </div>
+    </div>
   </div>
-
-  <div class="field">
-    <%= f.label :last_name %><br />
-    <%= f.text_field :last_name, autocomplete: "last-name"%>
-  </div>
-
-  <div class="field">
-    <%= f.label :email %><br />
-    <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
-  </div>
-
-  <div class="field">
-    <%= f.label :address %><br />
-    <%= f.text_field :current_address, autofocus: true %>
-  </div>
-
-  <div class="field">
-    <%= f.label :contact_number %><br />
-    <%= f.text_field :contact_number %>
-  </div>
-
-  <div class="field">
-    <%= f.label :time_zone %><br />
-    <%= f.time_zone_select :time_zone, nil, { default: "UTC" } %>
-  </div>
-
-
-  <div class="field">
-    <%= f.label :password %>
-    <% if @minimum_password_length %>
-    <em>(<%= @minimum_password_length %> characters minimum)</em>
-    <% end %><br />
-    <%= f.password_field :password, autocomplete: "new-password" %>
-  </div>
-
-  <div class="field">
-    <%= f.label :password_confirmation %><br />
-    <%= f.password_field :password_confirmation, autocomplete: "new-password" %>
-  </div>
-
-  <div class="actions">
-    <%= f.submit "Sign up" %>
-  </div>
-<% end %>
-
-<%= render "devise/shared/links" %>
+</div>
