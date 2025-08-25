@@ -9,11 +9,11 @@ class PackageWebhookService
     return false unless @package && @payload.present?
 
     events = Array(@payload.dig("data", "track_info", "tracking", "providers", 0, "events")) || []
-    latest_event = events.last || {}
+    latest_event = events.first || {}
 
     # Determine values with fallbacks
     last_update = latest_event["time_utc"] || latest_event["time_iso"]
-    stage = latest_event["stage"] || latest_event["sub_status"]
+    stage = latest_event["stage"] || latest_event["sub_status"].to_s.split("_").first.gsub(/([a-z])([A-Z])/, '\1 \2').titleize
     location = latest_event["location"] || begin
       addr = latest_event.dig("address")
       [ addr["city"], addr["state"] ].compact.join(", ") if addr
@@ -55,7 +55,7 @@ class PackageWebhookService
     end
 
     if user.contact_number.present?
-      message = "Update on your package #{@package.tracking_number}: #{@package.status} at #{@package.last_location}.\nThank you for using OFW Companion"
+      message = "Update on your package #{@package.tracking_number}:\n#{@package.status} at #{@package.last_location}.\nThank you for using OFW Companion"
       sms_service = IprogSmsService.new(api_token: ENV["IPROG_API_TOKEN"])
       sms_service.send_sms(number: user.contact_number, message: message)
     end

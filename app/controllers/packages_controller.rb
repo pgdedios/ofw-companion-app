@@ -27,9 +27,6 @@ class PackagesController < ApplicationController
               []
     end
 
-    tn = params[:tracking_number]
-    carrier = params[:carrier]
-
     @tracking_details = TrackingService.new(@package.tracking_number, @package.carrier_code).track
   end
 
