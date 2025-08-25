@@ -1,16 +1,16 @@
 require 'rails_helper'
 
-RSpec.describe "Packages", type: :request do
+RSpec.describe "RemittanceCenters", type: :request do
   describe "GET /index" do
     it "returns http success" do
-      get "/packages/index"
+      get "/remittance_centers/index"
       expect(response).to have_http_status(:success)
     end
   end
 
-  describe "GET /show" do
+  describe "GET /destroy" do
     it "returns http success" do
-      get "/packages/show"
+      get "/remittance_centers/destroy"
       expect(response).to have_http_status(:success)
     end
   end
