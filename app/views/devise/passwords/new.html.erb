@@ -1,16 +1,77 @@
-<h2>Forgot your password?</h2>
+<!-- Forgot Password Page -->
 
-<%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
-  <%= render "devise/shared/error_messages", resource: resource %>
+<style>
+  .fade-in {
+    opacity: 0;
+    animation: fadeIn 1s ease-in-out forwards;
+  }
+  .delay-1 { animation-delay: 0.3s; }
+  .delay-2 { animation-delay: 0.6s; }
+  .delay-3 { animation-delay: 0.9s; }
 
-  <div class="field">
-    <%= f.label :email %><br />
-    <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-blue-200 to-blue-50 fade-in delay-1">
+
+  <!-- Two Column Layout -->
+  <div class="flex w-full h-screen bg-white shadow-lg overflow-hidden">
+
+    <!-- Left Graphic Column -->
+    <div class="hidden md:flex flex-col w-1/2 bg-blue-700 p-8">
+      <!-- Logo -->
+      <div class="mb-4 fade-in delay-1">
+        <%= image_tag "ofw-companion-logo", alt: "OFW Companion Logo", class: "w-12 h-auto" %>
+      </div>
+      <!-- Illustration -->
+      <div class="flex-grow flex items-center justify-center fade-in delay-2">
+        <%= image_tag "devise-graphics/forgot-password.svg", alt: "Forgot Password Graphic", class: "w-3/4 h-auto" %>
+      </div>
+    </div>
+
+    <!-- Right Form Column -->
+    <div class="w-full flex flex-col justify-center items-center md:w-1/2 fade-in delay-3">
+      <h2 class="text-3xl font-bold text-center text-blue-600 mb-8">
+        Forgot your password?
+      </h2>
+
+      <div class="w-full max-w-md">
+        <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
+          <%= render "devise/shared/error_messages", resource: resource %>
+
+          <div class="space-y-6 mb-4">
+            <!-- Email Field -->
+            <div class="space-y-2">
+              <%= f.label :email, class: "block text-sm font-medium text-gray-700" %>
+              <%= f.email_field :email, autofocus: true, autocomplete: "email",
+                  class: "w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900
+                         focus:outline-none focus:ring-2 focus:ring-blue-600" %>
+            </div>
+
+            <!-- Submit -->
+            <div>
+              <%= f.submit "Send me reset password instructions",
+                  class: "w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white
+                         hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600
+                         focus:ring-offset-2 transition cursor-pointer" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Links -->
+      <div class="text-center text-sm text-gray-600 mt-4">
+        <%= render "devise/shared/links" %>
+      </div>
+    </div>
   </div>
-
-  <div class="actions">
-    <%= f.submit "Send me reset password instructions" %>
-  </div>
-<% end %>
-
-<%= render "devise/shared/links" %>
+</div>
