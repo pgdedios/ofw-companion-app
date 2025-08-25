@@ -11,5 +11,5 @@ class User < ApplicationRecord
 
   # dependencies
   has_many :packages
-  has_many :remittances
+  has_many :remittance_centers
 end

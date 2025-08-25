@@ -1,0 +1,86 @@
+<div data-controller="location">
+  <%= link_to "View My Saved Remittance Centers", remittance_centers_path %>
+
+  <hr>
+  
+  <h1>Nearby Remittance Centers</h1>
+
+  <h2>Select Location Source</h2>
+
+  <label>
+    <input type="radio" name="location_type" value="current" data-location-target="type" checked>
+    Use Current Location
+  </label><br>
+
+  <label>
+    <input type="radio" name="location_type" value="saved" data-location-target="type">
+    Use Saved Address
+  </label><br>
+
+  <input type="hidden" data-location-target="savedAddress" value="<%= current_user.current_address || '' %>">
+
+  <button type="button" data-action="click->location#loadCoordinates">Load Coordinates</button>
+
+  <p data-location-target="output"></p>
+
+  <%= form_with url: places_path, method: :get, local: true do %>
+    <div>
+      <label>Latitude:</label>
+      <%= text_field_tag :lat, params[:lat], data: { location_target: "lat" } %>
+    </div>
+
+    <div>
+      <label>Longitude:</label>
+      <%= text_field_tag :lng, params[:lng], data: { location_target: "lng" } %>
+    </div>
+
+    <%= hidden_field_tag :location, params[:location], data: { location_target: "locationField" } %>
+
+    <div>
+      <label>Radius (meters):</label>
+      <%= number_field_tag :radius, params[:radius] || 1000 %>
+    </div>
+
+    <div>
+      <label>Keyword:</label>
+      <%= text_field_tag :keyword, params[:keyword] || 'remittance' %>
+    </div>
+
+    <%# Hidden field to carry cached search results %>
+    <%= hidden_field_tag :cached_places, @places.to_json if @places.present? %>
+
+    <%= submit_tag "Search" %>
+  <% end %>
+
+  <% if params[:lat].present? && params[:lng].present? %>
+    <hr>
+    <% if @places.any? %>
+      <ul>
+        <% @places.each do |place| %>
+          <li>
+            <strong><%= place['name'] %></strong><br>
+            <%= place['vicinity'] %><br>
+
+            <% if @saved_place_ids.include?(place['place_id']) %>
+              <span>✅ Already saved</span>
+            <% else %>
+              <%= button_to "Save Remittance Center", save_places_path(
+                    place_id: place['place_id'],
+                    name: place['name'],
+                    address: place['vicinity'],
+                    location: params[:location],
+                    radius: params[:radius],
+                    keyword: params[:keyword],
+                    lat: params[:lat],
+                    lng: params[:lng],
+                    cached_places: params[:cached_places]
+                  ), method: :post %>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p>No remittance centers found. Try adjusting your search.</p>
+    <% end %>
+  <% end %>
+</div>

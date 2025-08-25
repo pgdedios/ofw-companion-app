@@ -45,6 +45,16 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_24_142124) do
     t.index ["user_id"], name: "index_packages_on_user_id"
   end
 
+  create_table "remittance_centers", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "place_id"
+    t.string "name"
+    t.string "address"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_remittance_centers_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -68,4 +78,5 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_24_142124) do
   end
 
   add_foreign_key "packages", "users"
+  add_foreign_key "remittance_centers", "users"
 end
