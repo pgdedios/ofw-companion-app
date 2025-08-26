@@ -34,7 +34,14 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_26_104255) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.jsonb "tracking_events", default: [], null: false
-    t.index ["user_id", "courier_name", "tracking_number"], name: "index_packages_on_user_courier_tracking", unique: true
+    t.string "latest_description"
+    t.string "latest_stage"
+    t.string "latest_substatus"
+    t.jsonb "latest_event_raw"
+    t.string "tracking_provider"
+    t.string "carrier_code"
+    t.index ["user_id", "tracking_number", "courier_name"], name: "index_packages_on_user_tracking_with_courier", unique: true, where: "(courier_name IS NOT NULL)"
+    t.index ["user_id", "tracking_number"], name: "index_packages_on_user_tracking_without_courier", unique: true, where: "(courier_name IS NULL)"
     t.index ["user_id"], name: "index_packages_on_user_id"
   end
 

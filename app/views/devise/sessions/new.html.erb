@@ -1,26 +1,93 @@
-<h2>Log in</h2>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log in</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 
-<%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
-  <div class="field">
-    <%= f.label :email %><br />
-    <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
-  </div>
+  <style>
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeIn 0.8s ease-out forwards;
+    }
 
-  <div class="field">
-    <%= f.label :password %><br />
-    <%= f.password_field :password, autocomplete: "current-password" %>
-  </div>
+    .delay-1 {
+      animation-delay: 0.9s;
+    }
 
-  <% if devise_mapping.rememberable? %>
-    <div class="field">
-      <%= f.check_box :remember_me %>
-      <%= f.label :remember_me %>
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<!-- Outer Container -->
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-blue-200 to-blue-50 fade-in">
+
+  <!-- Two Column Layout -->
+  <div class="flex w-full h-screen bg-white shadow-lg overflow-hidden">
+
+    <!-- Left Graphic Column -->
+    <div class="hidden md:flex flex-col w-1/2 bg-blue-700 p-8">
+      <!-- Logo -->
+      <div class="mb-4 fade-in ">
+        <%= image_tag "ofw-companion-logo", alt: "OFW Companion Logo", class: "w-12 h-auto delay-1" %>
+      </div>
+      <!-- Illustration -->
+      <div class="flex-grow flex items-center justify-center">
+        <%= image_tag "devise-graphics/login.svg", alt: "Login Graphic", class: "w-3/4 h-auto fade-in delay-1" %>
+      </div>
     </div>
-  <% end %>
 
-  <div class="actions">
-    <%= f.submit "Log in" %>
+    <!-- Right Login Form Column -->
+    <div class="w-full flex flex-col justify-center items-center md:w-1/2 p-8 fade-in delay-1">
+      <h2 class="text-3xl font-bold text-center text-blue-600 mb-8">Log in</h2>
+
+
+        <div class="w-full max-w-md">
+      <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+        <div class="space-y-6 mb-4">
+
+          <!-- Email -->
+          <div class="space-y-2">
+            <%= f.label :email, class: "block text-sm font-medium text-gray-700" %>
+            <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600" %>
+          </div>
+
+          <!-- Password -->
+          <div class="space-y-2">
+            <%= f.label :password, class: "block text-sm font-medium text-gray-700" %>
+            <%= f.password_field :password, autocomplete: "current-password", class: "w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600" %>
+          </div>
+
+          <!-- Remember Me -->
+          <% if devise_mapping.rememberable? %>
+            <div class="flex items-center space-x-2">
+              <%= f.check_box :remember_me, class: "rounded border-gray-300 text-blue-600 focus:ring-blue-600" %>
+              <%= f.label :remember_me, class: "text-sm text-gray-700" %>
+            </div>
+          <% end %>
+
+          <!-- Submit -->
+          <div>
+            <%= f.submit "Log in", class: "w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 transition cursor-pointer" %>
+          </div>
+        </div>
+      <% end %>
+      </div>
+
+
+      <!-- Links -->
+      <div class="text-center text-sm text-gray-600 mt-4">
+        <%= render "devise/shared/links" %>
+      </div>
+    </div>
   </div>
-<% end %>
-
-<%= render "devise/shared/links" %>
+</div>

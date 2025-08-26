@@ -1,28 +1,45 @@
 <div>
-  <%= link_to "Back to Dashboard", dashboard_index_path%>
+  <%= render "layouts/sidebar" %>
 </div>
 
-<div>
-  <%= link_to "New Package", new_package_path %>
+<!-- Main Content -->
+<div class="flex-1 p-10 lg:ml-64 min-h-dvh bg-gray-50">
+  <!-- Header -->
+  <div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+    <h1 class="text-2xl font-semibold mb-6">My Packages</h1>
+    <%= link_to "✚ New Package", new_package_path, 
+        class: "bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-700 text-sm sm:text-base" %>
+  </div>
+
+  <!-- Table (scrollable on mobile) -->
+  <div class="overflow-x-auto rounded-lg border border-gray-200">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="px-4 py-2 text-left font-medium text-gray-900 text-center">Tracking</th>
+          <th class="px-4 py-2 text-left font-medium text-gray-900 text-center">Courier</th>
+          <th class="px-4 py-2 text-left font-medium text-gray-900 text-center">Status</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <% @packages.each do |pkg| %>
+          <% latest_event = pkg.latest_event_raw || {} %>
+          <% current_status =
+                latest_event["stage"].presence ||
+                latest_event["sub_status"].to_s.split("_").first.presence ||
+                pkg.status.presence || "Unknown" %>
+          <% current_status = current_status.gsub(/([a-z])([A-Z])/, '\1 \2').titleize %>
+
+          <% last_update = latest_event["time_utc"].presence || pkg.last_update %>
+          <% last_update_formatted = last_update ? Time.zone.parse(last_update.to_s).strftime("%b %d, %Y %I:%M %p") : "N/A" %>
+
+          <tr class="hover:bg-gray-50 cursor-pointer" onclick="window.location='<%= package_path(pkg) %>'">
+            <td class="px-4 py-3 font-medium text-gray-900 text-center"><%= pkg.tracking_number %></td>
+            <td class="px-4 py-3 text-gray-900 text-center"><%= pkg.courier_name %></td>
+            <td class="px-4 py-3 text-gray-900 text-center"><%= current_status %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
 </div>
-
-<h1>My Packages</h1>
-
-<% @packages.each do |pkg| %>
-  <!-- Find the first non-nil stage in events -->
-  <% last_stage_event = pkg.tracking_events.find { |e| e["stage"].present? || e["sub_status"].present? } %>
-  <% current_status = if last_stage_event
-                        last_stage_event["stage"].presence || last_stage_event["sub_status"]&.split("_")&.first
-                      else
-                        "Unknown"
-                      end %>
-
-  <p>
-    <%= link_to package_path(pkg) do%>
-      <strong>Tracking Number:</strong> <%= pkg.tracking_number %> |
-      <strong>Courier:</strong> <%= pkg.courier_name %> |
-      <strong>Status:</strong> <%= titleize_status(current_status) %>
-    <% end %>
-  </p>
-<% end %>
-
