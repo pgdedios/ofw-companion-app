@@ -93,4 +93,7 @@ Rails.application.configure do
     authentication: "plain",
     enable_starttls_auto: true
   }
+
+  # Allow ngrok (replace with your actual subdomain if it changes)
+  config.hosts << /[a-z0-9-]+\.ngrok-free\.app/
 end
