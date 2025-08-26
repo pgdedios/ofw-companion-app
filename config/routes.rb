@@ -36,7 +36,12 @@ Rails.application.routes.draw do
       post :save, on: :collection
     end
 
-    resources :remittance_centers, only: [ :index, :destroy ]
+    resources :remittance_centers, only: [ :index, :destroy ] do
+      collection do
+        get :map
+      end
+    end
+
 
     root to: "dashboard#index", as: :authenticated_root
   end
