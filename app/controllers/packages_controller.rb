@@ -1,7 +1,7 @@
 class PackagesController < ApplicationController
   skip_before_action :verify_authenticity_token, only: [ :webhook_update ] # required for external webhook
   before_action :authenticate_user!, except: [ :webhook_update ]
-  before_action :set_package, only: [ :show ]
+  before_action :set_package, only: [ :show, :destroy ]
 
   def index
     @packages = current_user.packages.order(created_at: :desc)
@@ -53,6 +53,11 @@ class PackagesController < ApplicationController
       flash[:alert] = @package.errors.full_messages.join(", ")
       redirect_to packages_path
     end
+  end
+
+  def destroy
+    @package.destroy
+    redirect_to packages_path, notice: "Package #{@package.tracking_number} deleted."
   end
 
   def webhook_update

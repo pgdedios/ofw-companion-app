@@ -21,7 +21,7 @@ Rails.application.routes.draw do
 
   # Conditional root paths based on authentication
   authenticated :user do
-    resources :packages, only: [ :index, :show, :new, :create ] do
+    resources :packages, only: [ :index, :show, :new, :create, :destroy ] do
       member do
         put :webhook_update
       end
