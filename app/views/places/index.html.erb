@@ -1,86 +1,94 @@
-<div data-controller="location">
-  <%= link_to "View My Saved Remittance Centers", remittance_centers_path %>
+<div>
+  <%= render "layouts/sidebar" %>
+</div>
 
-  <hr>
-  
-  <h1>Nearby Remittance Centers</h1>
+<div data-controller="location" class="flex-1 p-6 md:p-10 lg:ml-64 min-h-dvh space-y-6 bg-gray-50">
+  <%= link_to "View My Saved Remittance Centers", remittance_centers_path, class: "text-blue-600 hover:underline font-semibold block text-center sm:text-left" %>
 
-  <h2>Select Location Source</h2>
+  <hr class="border-gray-300">
 
-  <label>
-    <input type="radio" name="location_type" value="current" data-location-target="type" checked>
-    Use Current Location
-  </label><br>
+  <h1 class="text-xl sm:text-2xl font-bold text-gray-800 text-center sm:text-left">Nearby Remittance Centers</h1>
 
-  <label>
-    <input type="radio" name="location_type" value="saved" data-location-target="type">
-    Use Saved Address
-  </label><br>
+  <h2 class="text-base sm:text-lg font-semibold text-gray-700">Select Location Source</h2>
+
+  <div class="space-y-2">
+    <label class="flex items-center space-x-2">
+      <input type="radio" name="location_type" value="current" data-location-target="type" checked class="form-radio text-blue-600">
+      <span>Use Current Location</span>
+    </label>
+
+    <label class="flex items-center space-x-2">
+      <input type="radio" name="location_type" value="saved" data-location-target="type" class="form-radio text-blue-600">
+      <span>Use Saved Address</span>
+    </label>
+  </div>
 
   <input type="hidden" data-location-target="savedAddress" value="<%= current_user.current_address || '' %>">
 
-  <button type="button" data-action="click->location#loadCoordinates">Load Coordinates</button>
+  <button type="button" data-action="click->location#loadCoordinates" class="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+    Set Location
+  </button>
 
-  <p data-location-target="output"></p>
+  <p data-location-target="output" class="text-sm text-gray-600"></p>
 
-  <%= form_with url: places_path, method: :get, local: true do %>
-    <div>
-      <label>Latitude:</label>
-      <%= text_field_tag :lat, params[:lat], data: { location_target: "lat" } %>
+  <%= form_with url: places_path, method: :get, local: true, class: "space-y-4" do %>
+    <div class="hidden">
+      <label class="block text-sm font-medium text-gray-700">Latitude:</label>
+      <%= text_field_tag :lat, params[:lat], data: { location_target: "lat" }, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm" %>
     </div>
 
-    <div>
-      <label>Longitude:</label>
-      <%= text_field_tag :lng, params[:lng], data: { location_target: "lng" } %>
+    <div class="hidden">
+      <label class="block text-sm font-medium text-gray-700">Longitude:</label>
+      <%= text_field_tag :lng, params[:lng], data: { location_target: "lng" }, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm" %>
     </div>
 
     <%= hidden_field_tag :location, params[:location], data: { location_target: "locationField" } %>
 
     <div>
-      <label>Radius (meters):</label>
-      <%= number_field_tag :radius, params[:radius] || 1000 %>
+      <label class="block text-sm font-medium text-gray-700">Radius (meters):</label>
+      <%= number_field_tag :radius, params[:radius] || 1000, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm" %>
     </div>
 
-    <div>
-      <label>Keyword:</label>
-      <%= text_field_tag :keyword, params[:keyword] || 'remittance' %>
+    <div class="hidden">
+      <label class="block text-sm font-medium text-gray-700">Keyword:</label>
+      <%= text_field_tag :keyword, params[:keyword] || 'remittance', class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm" %>
     </div>
 
-    <%# Hidden field to carry cached search results %>
     <%= hidden_field_tag :cached_places, @places.to_json if @places.present? %>
 
-    <%= submit_tag "Search" %>
+    <%= submit_tag "Search", class: "w-full sm:w-auto px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700" %>
   <% end %>
 
   <% if params[:lat].present? && params[:lng].present? %>
-    <hr>
+    <hr class="border-gray-300">
+
     <% if @places.any? %>
-      <ul>
+      <ul class="space-y-4">
         <% @places.each do |place| %>
-          <li>
-            <strong><%= place['name'] %></strong><br>
-            <%= place['vicinity'] %><br>
+          <li class="p-4 border rounded-md shadow-sm">
+            <strong class="text-base sm:text-lg text-gray-800"><%= place['name'] %></strong><br>
+            <span class="text-sm text-gray-600"><%= place['vicinity'] %></span><br>
 
             <% if @saved_place_ids.include?(place['place_id']) %>
-              <span>✅ Already saved</span>
+              <span class="text-green-600 font-semibold">✅ Already saved</span>
             <% else %>
               <%= button_to "Save Remittance Center", save_places_path(
-                    place_id: place['place_id'],
-                    name: place['name'],
-                    address: place['vicinity'],
-                    location: params[:location],
-                    radius: params[:radius],
-                    keyword: params[:keyword],
-                    lat: params[:lat],
-                    lng: params[:lng],
-                    cached_places: params[:cached_places]
-                  ), method: :post %>
+                  place_id: place['place_id'],
+                  name: place['name'],
+                  address: place['vicinity'],
+                  lat: place['geometry']['location']['lat'],
+                  lng: place['geometry']['location']['lng'],
+                  location: params[:location],
+                  radius: params[:radius],
+                  keyword: params[:keyword],
+                  cached_places: params[:cached_places]
+                ), method: :post, class: "mt-2 w-full sm:w-auto px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600" %>
             <% end %>
           </li>
         <% end %>
       </ul>
     <% else %>
-      <p>No remittance centers found. Try adjusting your search.</p>
+      <p class="text-red-600 font-medium">No remittance centers found. Try adjusting your search.</p>
     <% end %>
   <% end %>
 </div>

@@ -20,11 +20,14 @@ class PlacesController < ApplicationController
     end
   end
 
+
   def save
     current_user.remittance_centers.find_or_create_by(
       place_id: params[:place_id],
       name: params[:name],
-      address: params[:address]
+      address: params[:address],
+      latitude: params[:lat],
+      longitude: params[:lng]
     )
 
     redirect_to places_path(
@@ -36,6 +39,7 @@ class PlacesController < ApplicationController
       cached_places: params[:cached_places]
     ), notice: "Remittance center saved!"
   end
+
 
   def geocode_address
     address = params[:address]
