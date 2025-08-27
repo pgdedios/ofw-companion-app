@@ -2,13 +2,44 @@
   <%= render "layouts/sidebar" %>
 </div>
 
-<div class="flex-1 p-10 lg:ml-64 min-h-dvh">
-  <h1 class="font-bold text-4xl">Dashboard#index</h1>
-  <p>Find me in app/views/dashboard/index.html.erb</p>
+<div class="flex-1 p-10 lg:ml-64 min-h-dvh bg-gray-100">
+  <h1 class="text-2xl font-semibold mb-6 text-gray-800">Dashboard</h1>
+
+  <!-- Main Body -->
+  <div class="grid grid-cols-1 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="grid grid-rows-2 gap-4">
+        <!-- Currency Conversion -->
+        <div class="min-h-[10rem] p-6 border bg-white rounded-md shadow-sm">
+          <h2 class="text-lg font-semibold text-gray-800">Currency Conversion</h2>
+        </div>
+
+        <!-- World Clock -->
+        <div class="min-h-[10rem] p-6 border bg-white rounded-md shadow-sm">
+          <h2 class="text-lg font-semibold text-gray-800">World Clock</h2>
+        </div>
+      </div>
+
+      <!-- Remittance Centers -->
+      <div class="min-h-[20rem] md:h-[30rem] border bg-white rounded-md shadow-sm flex flex-col overflow-hidden">
+        <!-- Sticky Header -->
+        <div class="flex justify-between items-center p-4 bg-white sticky top-0 z-10">
+          <h2 class="text-lg font-semibold text-gray-800">Nearby Remittance Centers</h2>
+          <%= link_to "View All", remittance_centers_path, class: "text-blue-600 hover:text-blue-800 text-sm font-medium" %>
+        </div>
+        <hr class="border-gray-300">
+        <!-- Scrollable Content Area -->
+        <div class="overflow-y-auto flex-1">
+          <%= render "remittance_centers", locals: { remittance_centers: @remittance_centers_path } %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Package Tracker -->
+    <div class="min-h-[15rem] p-6 border bg-white rounded-md shadow-sm">
+      <h2 class="text-lg font-semibold text-gray-800">Package Tracker</h2>
+    </div>
+  </div>
 </div>
 
-<!-- Temporary Logout Button -->
-<%= link_to "Logout", destroy_user_session_path, 
-    data: { "turbo-method": :delete, turbo_confirm: "Are you sure?" } %> </br>
 
-<%= link_to "Package Tracker", packages_path %>
