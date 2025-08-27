@@ -54,27 +54,63 @@
 
 <body class="bg-white text-gray-800 font-light">
 <!-- Navigation -->
-<nav class="container mx-auto px-6 py-6 fade-in delay-1 h-[80px]">
-  <div class="flex items-center justify-between h-full">
+<nav class="relative z-50 bg-white shadow fade-in delay-1">
+  <div class="container mx-auto px-6 py-6 h-[80px] flex items-center justify-between">
+    <!-- Logo -->
     <div class="flex items-center">
       <%= image_tag "ofw-companion-logo.svg", alt: "ofw-logo", class: "w-12 h-12" %>
-      <span class="ml-2 text-xl tracking-tight font-bold">Companion</span>
+      <span class="ml-2 text-xl tracking-tight font-bold">OFW Companion</span>
     </div>
+
+    <!-- Desktop Nav -->
     <div class="hidden lg:flex space-x-10 text-sm text-gray-600">
       <a href="#home" class="hover:text-blue-600 transition-colors">Home</a>
       <a href="#features" class="hover:text-blue-600 transition-colors">Features</a>
       <a href="#testimonials" class="hover:text-blue-600 transition-colors">Testimonials</a>
       <a href="#faqs" class="hover:text-blue-600 transition-colors">FAQs</a>
     </div>
-    <div class="flex gap-2">
+
+    <!-- Desktop Auth -->
+    <div class="hidden lg:flex gap-2">
       <%= link_to "Log In", new_user_session_path, class: "text-sm text-white bg-blue-600 rounded-md px-4 py-2 hover:bg-blue-700 transition-all" %>
       <%= link_to "Sign Up", new_user_registration_path, class: "text-sm border border-gray-300 rounded-md px-4 py-2 hover:bg-blue-50 transition-all" %>
+    </div>
+
+    <!-- Mobile Burger -->
+    <button id="menu-toggle" class="lg:hidden flex items-center text-gray-700 focus:outline-none">
+      <i data-lucide="menu" class="w-8 h-8"></i>
+    </button>
+  </div>
+
+  <!-- Mobile Dropdown -->
+  <div id="mobile-menu" class="hidden absolute top-full left-0 right-0 bg-white shadow-md p-4 space-y-4 lg:hidden z-40">
+    <a href="#home" class="block text-gray-700 hover:text-blue-600">Home</a>
+    <a href="#features" class="block text-gray-700 hover:text-blue-600">Features</a>
+    <a href="#testimonials" class="block text-gray-700 hover:text-blue-600">Testimonials</a>
+    <a href="#faqs" class="block text-gray-700 hover:text-blue-600">FAQs</a>
+    <div class="pt-4 border-t">
+      <%= link_to "Log In", new_user_session_path, class: "block w-full text-center text-white bg-blue-600 rounded-md px-4 py-2 hover:bg-blue-700 transition-all mb-2" %>
+      <%= link_to "Sign Up", new_user_registration_path, class: "block w-full text-center border border-gray-300 rounded-md px-4 py-2 hover:bg-blue-50 transition-all" %>
     </div>
   </div>
 </nav>
 
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    lucide.createIcons();
+
+    const menuToggle = document.getElementById("menu-toggle");
+    const mobileMenu = document.getElementById("mobile-menu");
+
+    menuToggle.addEventListener("click", () => {
+      mobileMenu.classList.toggle("hidden");
+    });
+  });
+</script>
+
 <!-- Hero -->
-<div class="relative overflow-hidden" id="home" style="height:calc(100vh - 80px);">
+<div id="home" class="relative overflow-hidden mt-[80px] sm:mt-0 md:h-[calc(100vh-80px)]">
+
   <div class="absolute inset-0 bg-gradient-to-br from-blue-200 via-white to-blue-100 z-0"></div>
 
   <div class="container mx-auto px-6 h-full flex items-center relative z-10 fade-in delay-2">
@@ -94,13 +130,58 @@
       
       <!-- Image -->
       <div class="md:w-1/2 relative fade-in delay-1">
-        <div class="relative h-[500px] w-[500px] mx-auto">
+        <div class="relative lg:h-[500px] lg:w-[500px] mx-auto">
           <%= image_tag "filipinos-svg.svg", alt: "Currency Conversion", class: "mx-auto" %>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<!-- Partnerships / Credibility -->
+<section class="bg-white py-12 fade-in delay-3">
+  <div class="container mx-auto px-6 text-center">
+    
+    <!-- Headline -->
+    <h2 class="text-xl md:text-2xl font-medium text-gray-700 mb-4">
+      Trusted by <span class="font-semibold text-blue-600">10,000+ OFWs worldwide</span>
+    </h2>
+    <p class="text-gray-500 mb-8">
+      In partnership with the following companies
+    </p>
+
+    <!-- Logos Row -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-8 items-center justify-center">
+
+      <!-- Google Maps -->
+      <div class="flex items-center justify-center">
+        <%= image_tag "partner-logos/google-maps.svg", alt: "Google Maps", class: "w-36 h-20" %>
+      </div>
+
+      <!-- Western Union -->
+      <div class="flex items-center justify-center">
+        <%= image_tag "partner-logos/western-union.svg", alt: "Western Union", class: "w-36 h-20" %>
+      </div>
+
+       <!-- LBC -->
+      <div class="flex items-center justify-center">
+        <%= image_tag "partner-logos/lbc.svg", alt: "LBC Express", class: "w-36 h-20" %>
+      </div>
+
+      <!-- DHL -->
+      <div class="flex items-center justify-center">
+        <%= image_tag "partner-logos/dhl.svg", alt: "DHL", class: "w-36 h-20" %>
+      </div>
+
+      <!-- MoneyGram -->
+      <div class="flex items-center justify-center">
+        <%= image_tag "partner-logos/moneygram.svg", alt: "MoneyGram", class: "w-36 h-20" %>
+    </div>
+
+
+  </div>
+</section>
+
 
 <!-- Features -->
 <section id="features" class="bg-white py-20 fade-in delay-2">
@@ -260,7 +341,7 @@
     <!-- Logo -->
     <div class="flex justify-center md:justify-start items-center space-x-2">
       <%= image_tag "ofw-companion-logo.svg", alt: "ofw-logo", class: "w-12 h-12" %>
-      <span class="ml-2 text-xl tracking-tight font-bold">Companion</span>
+      <span class="ml-2 text-xl tracking-tight font-bold">OFW Companion</span>
     </div>
 
     <!-- Navigation -->
@@ -273,9 +354,13 @@
 
     <!-- Auth Buttons -->
     <div class="flex justify-center md:justify-end space-x-4">
-      <a href="#" class="px-4 py-2 bg-white text-blue-600 rounded-lg hover:bg-gray-100 font-medium">Login</a>
-      <a href="#" class="px-4 py-2 border border-white rounded-lg hover:bg-white hover:text-blue-600 font-medium">Sign Up</a>
+      <%= link_to "Login", new_user_session_path, 
+        class: "px-4 py-2 bg-white text-blue-600 rounded-lg hover:bg-gray-100 font-medium" %>
+
+      <%= link_to "Sign Up", new_user_registration_path, 
+        class: "px-4 py-2 border border-white rounded-lg hover:bg-white hover:text-blue-600 font-medium" %>
     </div>
+
 
   </div>
 

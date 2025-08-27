@@ -3,6 +3,10 @@ class CurrencyConverterController < ApplicationController
 
   def index; end
 
+  def get_convert
+
+  end
+
   def convert
     @original_amount = params[:amount].to_f
     @from_currency = params[:from_currency].upcase
@@ -16,8 +20,8 @@ class CurrencyConverterController < ApplicationController
       # Optionally save the rate to database for caching
       CurrencyRate.find_or_fetch(@from_currency, @to_currency)
 
-      # Render the index page with results instead of separate page
-      render :index
+      # redirect to index page of currency_converter
+      redirect_to currency_converter_path
     else
       flash.now[:error] = "Unable to convert currency. Please try again."
       render :index

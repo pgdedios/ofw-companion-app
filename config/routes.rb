@@ -30,6 +30,7 @@ Rails.application.routes.draw do
     # Currency converter routes
     get "currency_converter", to: "currency_converter#index"
     post "currency_converter/convert", to: "currency_converter#convert"
+    get "currency_converter/get_convert", to: "currency_converter#get_convert"
 
     # Remittance centers routes
     resources :places, only: [ :index ] do
