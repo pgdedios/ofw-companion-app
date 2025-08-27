@@ -51,21 +51,8 @@ class TrackingService
       latest_event = entry.dig("track_info", "latest_event") || {}
       latest_status = entry.dig("track_info", "latest_status") || {}
       time_metrics = entry.dig("track_info", "time_metrics") || {}
-      # milestone = entry.dig("track_info", "milestone") || {}
       estimated_delivery = time_metrics.dig("estimated_delivery_date", "to")
       provider_info = providers.first&.dig("provider") || {}
-
-      # Map events with flags
-      # formatted_events = events.map do |e|
-      #   {
-      #     "time_utc" => e["time_utc"],
-      #     "stage" => (e["stage"].presence || e["sub_status"]&.split("_")&.first),
-      #     "description" => e["description"],
-      #     "location" => e["location"],
-      #     "sms_sent" => false,
-      #     "email_sent" => false
-      #   }
-      # end
 
       {
         # carrier info
@@ -92,6 +79,7 @@ class TrackingService
         ship_date: entry["ship_date"],
         estimated_delivery: estimated_delivery,
         current_days_in_transit: time_metrics["days_of_transit"],
+        full_payload: accepted,
 
         # events history
         events: events
