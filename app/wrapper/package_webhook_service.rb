@@ -8,23 +8,40 @@ class PackageWebhookService
   def process
     return false unless @package && @payload.present?
 
-    events = Array(@payload.dig("data", "track_info", "tracking", "providers", 0, "events")) || []
-    latest_event = events.first || {}
+    # Normalize API vs Webhook format into a consistent array of hashes
+    normalized_payload =
+      if @payload.is_a?(Hash) && @payload["data"].is_a?(Array)
+        @payload["data"]
+      elsif @payload.is_a?(Hash) && @payload["data"].present?
+        [ @payload["data"] ]
+      elsif @payload.is_a?(Array)
+        @payload
+      else
+        []
+      end
+
+    # Always take the first element (since we store as array of hashes)
+    first_payload = normalized_payload.first || {}
+
+    events_history = first_payload.dig("track_info", "tracking", "providers", 0, "events") || []
+    latest_event   = events_history.first || {}
 
     # Determine values with fallbacks
     last_update = latest_event["time_utc"] || latest_event["time_iso"]
-    stage = latest_event["stage"] || latest_event["sub_status"].to_s.split("_").first.gsub(/([a-z])([A-Z])/, '\1 \2').titleize
+    stage = latest_event["stage"] ||
+            latest_event["sub_status"].to_s.split("_").first
+                          .gsub(/([a-z])([A-Z])/, '\1 \2')
+                          .titleize
     location = latest_event["location"] || begin
-      addr = latest_event.dig("address")
+      addr = latest_event["address"]
       [ addr["city"], addr["state"] ].compact.join(", ") if addr
     end
     description = latest_event["description"]
 
     # Update only if something changed
-    if @package.tracking_events != events
-      # update package columns first
+    if @package.full_payload != normalized_payload
       @package.update(
-        tracking_events: events,
+        tracking_events: events_history,
         status: stage || @package.status,
         last_update: last_update,
         last_location: location,
@@ -32,10 +49,10 @@ class PackageWebhookService
         latest_stage: stage,
         latest_substatus: latest_event["sub_status"],
         latest_event_raw: latest_event,
-        tracking_provider: @payload.dig("data", "track_info", "tracking", "providers", 0, "provider", "name")
+        tracking_provider: first_payload.dig("track_info", "tracking", "providers", 0, "provider", "name"),
+        full_payload: normalized_payload
       )
 
-      # notify user after updating columns
       notify_user
     end
 

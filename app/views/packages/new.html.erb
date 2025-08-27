@@ -105,8 +105,9 @@
                 <%= hidden_field_tag :latest_stage, entry[:status] %>
                 <%= hidden_field_tag :latest_substatus, entry[:sub_status] %>
                 <%= hidden_field_tag :tracking_provider, entry[:carrier_name] %>
-                <%= hidden_field_tag :tracking_events, entry.to_json %>
+                <%= hidden_field_tag :tracking_events, entry[:events].to_json %>
                 <%= hidden_field_tag :latest_event_raw, entry[:events]&.first.to_json %>
+                <%= hidden_field_tag :full_payload, entry[:full_payload].to_json %>
               </div>
             <% end %>
           </div>

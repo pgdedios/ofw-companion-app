@@ -44,7 +44,8 @@ class PackagesController < ApplicationController
       latest_substatus: params[:latest_substatus],
       tracking_provider: params[:tracking_provider],
       tracking_events: safe_parse_events(params[:tracking_events]),
-      latest_event_raw: safe_parse_events(params[:latest_event_raw])
+      latest_event_raw: safe_parse_events(params[:latest_event_raw]),
+      full_payload: safe_parse_events(params[:full_payload])
     )
 
     if @package.save
@@ -95,7 +96,8 @@ class PackagesController < ApplicationController
       :destination_state,
       :destination_country,
       tracking_events: [],
-      latest_event_raw: []
+      latest_event_raw: [],
+      full_payload: []
     )
   end
 
