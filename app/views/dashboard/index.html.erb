@@ -15,8 +15,9 @@
         </div>
 
         <!-- World Clock -->
-        <div class="min-h-[10rem] p-6 border bg-white rounded-md shadow-sm">
-          <h2 class="text-lg font-semibold text-gray-800">World Clock</h2>
+        <div class="min-h-[10rem] p-6 border bg-white rounded-md shadow-sm items-center justify-center content-center">
+          <%# <h2 class="text-lg font-semibold text-gray-800">Home Clock</h2> %>
+          <%= render "home_clock" %>
         </div>
       </div>
 
@@ -38,6 +39,9 @@
     <!-- Package Tracker -->
     <div class="min-h-[15rem] p-6 border bg-white rounded-md shadow-sm">
       <h2 class="text-lg font-semibold text-gray-800">Package Tracker</h2>
+      <div class="my-4">
+        <%= render "packages/in_transit_packages", packages: @packages %>
+      </div>      
     </div>
   </div>
 </div>

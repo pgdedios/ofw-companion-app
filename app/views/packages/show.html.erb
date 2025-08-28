@@ -67,6 +67,8 @@
                   []
                 end.sort_by { |e| e["time_utc"] || "" }.reverse %>
 
+              <% events = entry_with_stage.dig("track_info", "tracking", "providers", 0, "events") %>
+
               <% if events.any? %>
                 <ul class="space-y-2">
                   <% events.each do |event| %>

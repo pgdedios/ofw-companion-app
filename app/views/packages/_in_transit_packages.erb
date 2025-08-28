@@ -1,0 +1,56 @@
+<% in_transit = @packages.select do |pkg| 
+     latest_event = pkg.latest_event_raw || {}
+     !(latest_event["stage"] == "Delivered" && latest_event["sub_status"] == "Delivered_Other")
+   end %>
+
+<% if in_transit.present? %>
+  <div class="overflow-x-auto rounded-lg border border-gray-200">      
+    <table class="w-full text-xs sm:text-sm md:text-sm lg:text-base">
+      <thead class="bg-gray-100">
+        <tr>
+          <!-- Tracking: always visible -->
+          <th class="px-2 sm:px-4 py-2 text-center font-medium text-gray-900">Tracking</th>
+          <!-- Courier: visible on tablet and larger -->
+          <th class="px-2 sm:px-4 py-2 text-center font-medium text-gray-900 hidden md:table-cell">Courier</th>
+          <!-- Status: always visible -->
+          <th class="px-2 sm:px-4 py-2 text-center font-medium text-gray-900">Status</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <% in_transit.each do |pkg| %>
+          <% latest_event = pkg.latest_event_raw || {} %>
+          <% current_status =
+                latest_event["stage"].presence ||
+                latest_event["sub_status"].to_s.split("_").first.presence ||
+                pkg.status.presence || "Unknown" %>
+          <% current_status = current_status.gsub(/([a-z])([A-Z])/, '\1 \2').titleize %>
+
+          <% last_update = latest_event["time_utc"].presence || pkg.last_update %>
+          <% last_update_formatted = last_update ? Time.zone.parse(last_update.to_s).strftime("%b %d, %Y %I:%M %p") : "N/A" %>
+
+          <tr class="hover:bg-gray-50 cursor-pointer" onclick="window.location='<%= package_path(pkg) %>'">
+            <td class="px-2 sm:px-4 py-2 font-medium text-gray-900 text-center text-xs sm:text-sm md:text-sm lg:text-base"><%= pkg.tracking_number %></td>
+            <td class="px-2 sm:px-4 py-2 text-gray-900 text-center text-xs sm:text-sm md:text-sm lg:text-base hidden md:table-cell"><%= pkg.courier_name %></td>
+            <td class="px-2 sm:px-4 py-2 text-gray-900 text-center text-xs sm:text-sm md:text-sm lg:text-base"><%= current_status %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>      
+  </div>
+<% else %>
+  <div class="flex flex-col items-center justify-center gap-3 min-h-[20rem]">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M16 16h6"/>
+      <path d="M19 13v6"/>
+      <path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14"/>
+      <path d="m7.5 4.27 9 5.15"/>
+      <polyline points="3.29 7 12 12 20.71 7"/>
+      <line x1="12" x2="12" y1="22" y2="12"/>
+    </svg>
+    <p class="text-gray-600 py-2 text-center sm:text-left">
+      You haven't saved any packages yet.
+    </p>
+    <%= link_to "✚ Track New Package", new_package_path,
+          class: "bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-700 text-sm sm:text-base" %>
+  </div>
+<% end %>
