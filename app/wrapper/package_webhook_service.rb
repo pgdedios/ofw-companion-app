@@ -21,13 +21,17 @@ class PackageWebhookService
       end
 
     # Always take the first element (since we store as array of hashes)
-    first_payload = normalized_payload.first || {}
+    # Pick the payload that has at least one event with a "stage"
+    first_payload = normalized_payload.find do |p|
+      events = p.dig("track_info", "tracking", "providers", 0, "events") || []
+      events.any? { |e| e["stage"].present? }
+    end || {}
 
     events_history = first_payload.dig("track_info", "tracking", "providers", 0, "events") || []
     latest_event   = events_history.first || {}
 
     # Determine values with fallbacks
-    last_update = latest_event["time_utc"] || latest_event["time_iso"]
+    last_update = latest_event["time_utc"]
     stage = latest_event["stage"] ||
             latest_event["sub_status"].to_s.split("_").first
                           .gsub(/([a-z])([A-Z])/, '\1 \2')
