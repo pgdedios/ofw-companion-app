@@ -21,13 +21,13 @@ class PackagesController < ApplicationController
   end
 
   def show
-    @events = if @package.tracking_events.is_a?(Hash) && @package.tracking_events["events"].is_a?(Array)
-              @package.tracking_events["events"].sort_by { |e| e["time_utc"] }.reverse
-    else
-              []
-    end
+    # @events = if @package.tracking_events.is_a?(Hash) && @package.tracking_events["events"].is_a?(Array)
+    #           @package.tracking_events["events"].sort_by { |e| e["time_utc"] }.reverse
+    # else
+    #           []
+    # end
 
-    @tracking_details = TrackingService.new(@package.tracking_number, @package.carrier_code).track
+    # @tracking_details = TrackingService.new(@package.tracking_number, @package.carrier_code).track
   end
 
   def create
