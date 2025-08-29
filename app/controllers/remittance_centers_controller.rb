@@ -1,6 +1,8 @@
 class RemittanceCentersController < ApplicationController
   before_action :authenticate_user!
 
+  layout "template"
+
   def index
     @remittance_centers = current_user.remittance_centers
   end
