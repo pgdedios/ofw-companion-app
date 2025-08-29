@@ -1,10 +1,6 @@
-<div>
-  <%= render "layouts/sidebar" %>
-</div>
-
 <!-- Main Content -->
 <div class="flex-1 p-4 sm:p-6 lg:p-10 lg:ml-64 min-h-dvh bg-gray-50">
-  <h1 class="text-xl sm:text-2xl font-bold mb-6">Track a New Package</h1>
+  <h1 class="text-xl sm:text-2xl font-bold mb-6">Track New Package</h1>
   
   <!-- Form -->
   <%= form_with url: new_package_path, method: :get, local: true, class: "space-y-4" do |f| %>
@@ -105,8 +101,9 @@
                 <%= hidden_field_tag :latest_stage, entry[:status] %>
                 <%= hidden_field_tag :latest_substatus, entry[:sub_status] %>
                 <%= hidden_field_tag :tracking_provider, entry[:carrier_name] %>
-                <%= hidden_field_tag :tracking_events, entry.to_json %>
+                <%= hidden_field_tag :tracking_events, entry[:events].to_json %>
                 <%= hidden_field_tag :latest_event_raw, entry[:events]&.first.to_json %>
+                <%= hidden_field_tag :full_payload, entry[:full_payload].to_json %>
               </div>
             <% end %>
           </div>

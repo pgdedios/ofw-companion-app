@@ -1,0 +1,23 @@
+<div class="flex flex-col items-center justify-center content-center w-full h-full p-10">
+  <!-- Folder icon -->
+  <div class="mb-4 text-gray-800">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-12">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+    </svg>
+  </div>
+
+  <!-- Main content -->
+  <div class="text-center">
+    <h1 class="font-semibold text-gray-800 mb-2 text-base">No remittance centers.</h1>
+    <p class="text-gray-500 mb-6 text-base">Get started by adding nearby remittance centers.</p>
+    
+    <!-- New Project button -->
+    <%= link_to places_path, class: "inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-base" do %>
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      Add Nearby Remittance Centers
+    <% end %>
+  </div>
+</div>

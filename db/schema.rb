@@ -10,9 +10,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_08_24_142124) do
+ActiveRecord::Schema[7.2].define(version: 2025_08_27_184357) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "currency_conversions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "from_currency"
+    t.string "to_currency"
+    t.decimal "amount"
+    t.decimal "converted_amount"
+    t.decimal "exchange_rate"
+    t.datetime "converted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_currency_conversions_on_user_id"
+  end
 
   create_table "currency_rates", force: :cascade do |t|
     t.string "base_currency"
@@ -40,6 +53,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_24_142124) do
     t.jsonb "latest_event_raw"
     t.string "tracking_provider"
     t.string "carrier_code"
+    t.jsonb "full_payload", default: []
     t.index ["user_id", "tracking_number", "courier_name"], name: "index_packages_on_user_tracking_with_courier", unique: true, where: "(courier_name IS NOT NULL)"
     t.index ["user_id", "tracking_number"], name: "index_packages_on_user_tracking_without_courier", unique: true, where: "(courier_name IS NULL)"
     t.index ["user_id"], name: "index_packages_on_user_id"
@@ -52,6 +66,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_24_142124) do
     t.string "address"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.float "latitude"
+    t.float "longitude"
     t.index ["user_id"], name: "index_remittance_centers_on_user_id"
   end
 
@@ -77,6 +93,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_24_142124) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "currency_conversions", "users"
   add_foreign_key "packages", "users"
   add_foreign_key "remittance_centers", "users"
 end
