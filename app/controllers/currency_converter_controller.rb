@@ -7,6 +7,10 @@ class CurrencyConverterController < ApplicationController
     @conversions = current_user.currency_conversions.recent_first.limit(10)
   end
 
+  def get_convert
+
+  end
+
   def convert
     @original_amount = params[:amount].to_f
     @from_currency = params[:from_currency].upcase
@@ -34,8 +38,8 @@ class CurrencyConverterController < ApplicationController
       # Reload conversions for the view
       @conversions = current_user.currency_conversions.recent_first.limit(10)
 
-      # Render the index page with results instead of separate page
-      render :index
+      # redirect to index page of currency_converter
+      redirect_to currency_converter_path
     else
       flash.now[:error] = "Unable to convert currency. Please try again."
       @conversions = current_user.currency_conversions.recent_first.limit(10)
