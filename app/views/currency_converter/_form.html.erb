@@ -1,7 +1,8 @@
- <%= form_with url: "/currency_converter", method: :post, local: true, data: { turbo: false }, class: "space-y-6" do |form| %>
+<%= form_with url: "/currency_converter", method: :post, local: true, data: { turbo: false }, class: "space-y-6" do |form| %>
   
   <!-- From & To Currency (side by side on md+, stacked on mobile) -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    
     <!-- From Currency -->
     <div>
       <%= form.label :from_currency, "From Currency", class: "block text-sm font-medium text-gray-700 mb-1" %>
@@ -32,39 +33,39 @@
   </div>
 <% end %>
 
+<% if @converted_amount %>
+  <div class="mt-6 p-4 bg-white border border-gray-200 rounded-lg shadow">
+    <h3 class="text-lg font-medium mb-2">Conversion Result</h3>
+    <p class="text-gray-700 flex items-center gap-2">
+      <strong><%= number_with_precision(@original_amount, precision: 2) %> <%= @from_currency %></strong>
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path d="M8 3 4 7l4 4"/>
+        <path d="M4 7h16"/>
+        <path d="m16 21 4-4-4-4"/>
+        <path d="M20 17H4"/>
+      </svg>
+      <strong class="text-green-600"><%= number_with_precision(@converted_amount, precision: 2) %> <%= @to_currency %></strong>
+    </p>
+  </div>
+<% end %>
 
-  <% if @converted_amount %>
-    <div class="mt-6 p-4 bg-white border border-gray-200 rounded-lg shadow">
-      <h3 class="text-lg font-medium mb-2">Conversion Result</h3>
-      <p class="text-gray-700 flex items-center gap-2">
-        <strong><%= number_with_precision(@original_amount, precision: 2) %> <%= @from_currency %></strong>
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path d="M8 3 4 7l4 4"/>
-          <path d="M4 7h16"/>
-          <path d="m16 21 4-4-4-4"/>
-          <path d="M20 17H4"/>
-        </svg>
-        <strong class="text-green-600"><%= number_with_precision(@converted_amount, precision: 2) %> <%= @to_currency %></strong>
-      </p>
-    </div>
-  <% end %>
+<% if flash[:error] %>
+  <div class="mt-4 bg-red-100 border border-red-300 text-red-700 px-4 py-2 rounded-lg">
+    <%= flash[:error] %>
+  </div>
+<% end %>
 
-  <% if flash[:error] %>
-    <div class="mt-4 bg-red-100 border border-red-300 text-red-700 px-4 py-2 rounded-lg">
-      <%= flash[:error] %>
-    </div>
-  <% end %>
-
-  <% if flash[:notice] %>
+<% if flash[:notice] %>
   <div class="mt-4 bg-green-100 border border-green-300 text-green-700 px-4 py-2 rounded-lg">
     <%= flash[:notice] %>
   </div>
 <% end %>
 
-
 <!-- Conversion History Section -->
 <% if @conversions&.any? %>
   <div class="mt-8 bg-white border border-gray-200 rounded-lg shadow">
+    
+    <!-- Header -->
     <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
       <h3 class="text-lg font-medium text-gray-900">Conversion History</h3>
       <%= button_to "Clear All History", 
@@ -77,8 +78,10 @@
           class: "bg-red-500 text-white px-3 py-1 text-sm rounded hover:bg-red-600 transition" %>
     </div>
     
+    <!-- Table -->
     <div class="overflow-x-auto">
       <table class="min-w-full divide-y divide-gray-200">
+        
         <thead class="bg-gray-50">
           <tr>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
@@ -88,30 +91,41 @@
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
           </tr>
         </thead>
+
         <tbody class="bg-white divide-y divide-gray-200">
           <% @conversions.each do |conversion| %>
             <tr class="hover:bg-gray-50">
+              
+              <!-- Date -->
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 <div class="flex flex-col">
                   <span class="font-medium"><%= conversion.converted_at.in_time_zone(current_user.time_zone).strftime("%b %d, %Y") %></span>
                   <span class="text-xs text-gray-500"><%= conversion.converted_at.in_time_zone(current_user.time_zone).strftime("%I:%M %p") %></span>
                 </div>
               </td>
+
+              <!-- From -->
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 <div class="flex flex-col">
                   <span class="font-medium"><%= number_with_precision(conversion.amount, precision: 2) %></span>
                   <span class="text-xs text-gray-500"><%= conversion.from_currency %></span>
                 </div>
               </td>
+
+              <!-- To -->
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 <div class="flex flex-col">
                   <span class="font-medium text-green-600"><%= number_with_precision(conversion.converted_amount, precision: 2) %></span>
                   <span class="text-xs text-gray-500"><%= conversion.to_currency %></span>
                 </div>
               </td>
+
+              <!-- Rate -->
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                 1 <%= conversion.from_currency %> = <%= number_with_precision(conversion.exchange_rate, precision: 4) %> <%= conversion.to_currency %>
               </td>
+
+              <!-- Actions -->
               <td class="px-6 py-4 whitespace-nowrap text-sm">
                 <%= button_to "Delete", 
                     delete_currency_conversion_path(conversion), 
@@ -134,81 +148,81 @@
       </div>
     <% end %>
   </div>
+
 <% elsif defined?(@conversions) %>
   <div class="mt-8 bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
     <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0
+               a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
     </svg>
     <h3 class="text-lg font-medium text-gray-900 mb-2">No Conversion History</h3>
     <p class="text-gray-600">Your conversion history will appear here after you perform currency conversions.</p>
   </div>
 <% end %>
 
-  <style>
+<style>
   .custom-dropdown .options {
     display: none;
   }
   .custom-dropdown.open .options {
     display: block;
   }
-  </style>
+</style>
 
+<script>
+  function initializeDropdowns() {
+    document.querySelectorAll(".custom-dropdown").forEach(dropdown => {
+      const selected = dropdown.querySelector(".selected");
+      const options = dropdown.querySelector(".options");
+      const hiddenInput = dropdown.querySelector("input[type='hidden']");
 
-  <script>
-function initializeDropdowns() {
-  document.querySelectorAll(".custom-dropdown").forEach(dropdown => {
-    const selected = dropdown.querySelector(".selected");
-    const options = dropdown.querySelector(".options");
-    const hiddenInput = dropdown.querySelector("input[type='hidden']");
+      // Prevent duplicate initialization
+      if (dropdown.dataset.initialized === "true") return;
 
-    // Remove existing event listeners to prevent duplicates
-    if (dropdown.dataset.initialized === "true") {
-      return;
-    }
-
-    selected.addEventListener("click", () => {
-      dropdown.classList.toggle("open");
-    });
-
-    options.querySelectorAll(".option").forEach(option => {
-      option.addEventListener("click", () => {
-        const value = option.getAttribute("data-value");
-        const flag = option.getAttribute("data-flag");
-        const name = option.getAttribute("data-name");
-
-        // Update selected content with flag and currency info
-        selected.innerHTML = `
-          <div class="flex items-center">
-            <img src="${flag}" alt="${name}" class="w-5 h-4 mr-2">
-            <span class="text-gray-700">${value} - ${name}</span>
-          </div>
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-          </svg>
-        `;
-
-        // Update classes for proper layout
-        selected.classList.remove("justify-start");
-        selected.classList.add("justify-between");
-
-        hiddenInput.value = value;
-        dropdown.classList.remove("open");
+      selected.addEventListener("click", () => {
+        dropdown.classList.toggle("open");
       });
+
+      options.querySelectorAll(".option").forEach(option => {
+        option.addEventListener("click", () => {
+          const value = option.getAttribute("data-value");
+          const flag = option.getAttribute("data-flag");
+          const name = option.getAttribute("data-name");
+
+          // Update selected content
+          selected.innerHTML = `
+            <div class="flex items-center">
+              <img src="${flag}" alt="${name}" class="w-5 h-4 mr-2">
+              <span class="text-gray-700">${value} - ${name}</span>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          `;
+
+          // Adjust layout
+          selected.classList.remove("justify-start");
+          selected.classList.add("justify-between");
+
+          hiddenInput.value = value;
+          dropdown.classList.remove("open");
+        });
+      });
+
+      document.addEventListener("click", (e) => {
+        if (!dropdown.contains(e.target)) {
+          dropdown.classList.remove("open");
+        }
+      });
+
+      // Mark as initialized
+      dropdown.dataset.initialized = "true";
     });
+  }
 
-    document.addEventListener("click", (e) => {
-      if (!dropdown.contains(e.target)) {
-        dropdown.classList.remove("open");
-      }
-    });
-
-    // Mark as initialized
-    dropdown.dataset.initialized = "true";
-  });
-}
-
-// Listen for both DOMContentLoaded and Turbo events
-document.addEventListener("DOMContentLoaded", initializeDropdowns);
-document.addEventListener("turbo:load", initializeDropdowns);
-document.addEventListener("turbo:render", initializeDropdowns);
+  // Init for Turbo & DOM load
+  document.addEventListener("DOMContentLoaded", initializeDropdowns);
+  document.addEventListener("turbo:load", initializeDropdowns);
+  document.addEventListener("turbo:render", initializeDropdowns);
 </script>
