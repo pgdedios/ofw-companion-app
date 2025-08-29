@@ -3,6 +3,8 @@ class PackagesController < ApplicationController
   before_action :authenticate_user!, except: [ :webhook_update ]
   before_action :set_package, only: [ :show, :destroy ]
 
+  layout "template"
+
   def index
     @packages = current_user.packages.order(created_at: :desc)
   end

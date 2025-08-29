@@ -2,6 +2,8 @@
 class PlacesController < ApplicationController
   before_action :authenticate_user!
 
+  layout "template"
+
   def index
     @places = []
     @saved_place_ids = current_user.remittance_centers.pluck(:place_id)
