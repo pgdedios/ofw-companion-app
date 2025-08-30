@@ -2,6 +2,7 @@ class PackagesController < ApplicationController
   skip_before_action :verify_authenticity_token, only: [ :webhook_update ] # required for external webhook
   before_action :authenticate_user!, except: [ :webhook_update ]
   before_action :set_package, only: [ :show, :destroy ]
+  before_action :set_carriers, only: [ :new, :create ]
 
   layout "template"
 
@@ -10,7 +11,6 @@ class PackagesController < ApplicationController
   end
 
   def new
-    @carriers = TrackingService.carriers
     tn = params[:tracking_number]
     carrier = params[:carrier]
 
@@ -22,15 +22,7 @@ class PackagesController < ApplicationController
       end
   end
 
-  def show
-    # @events = if @package.tracking_events.is_a?(Hash) && @package.tracking_events["events"].is_a?(Array)
-    #           @package.tracking_events["events"].sort_by { |e| e["time_utc"] }.reverse
-    # else
-    #           []
-    # end
-
-    # @tracking_details = TrackingService.new(@package.tracking_number, @package.carrier_code).track
-  end
+  def show;  end
 
   def create
     @package = current_user.packages.new(
@@ -51,10 +43,11 @@ class PackagesController < ApplicationController
     )
 
     if @package.save
-      redirect_to packages_path, notice: "Package added."
+      redirect_to packages_path, notice: "Package successfully added."
     else
-      flash[:alert] = @package.errors.full_messages.join(", ")
-      redirect_to packages_path
+      @tracking_details = []
+      flash.now[:alert] = @package.errors.full_messages.join(", ")
+      render :new, status: :unprocessable_entity
     end
   end
 
@@ -80,6 +73,10 @@ class PackagesController < ApplicationController
 
   def set_package
     @package = current_user.packages.find(params[:id])
+  end
+
+  def set_carriers
+    @carriers = TrackingService.carriers
   end
 
   def package_params
