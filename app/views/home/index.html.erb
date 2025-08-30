@@ -95,19 +95,6 @@
   </div>
 </nav>
 
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    lucide.createIcons();
-
-    const menuToggle = document.getElementById("menu-toggle");
-    const mobileMenu = document.getElementById("mobile-menu");
-
-    menuToggle.addEventListener("click", () => {
-      mobileMenu.classList.toggle("hidden");
-    });
-  });
-</script>
-
 <!-- Hero -->
 <div id="home" class="relative overflow-hidden mt-[80px] sm:mt-0 md:h-[calc(100vh-80px)]">
 
@@ -369,6 +356,74 @@
     © 2025 OFW Companion. All rights reserved.
   </div>
 </footer>
+
+
+<script>
+  // Function to initialize the mobile menu
+  function initializeMobileMenu() {
+    const menuToggle = document.getElementById("menu-toggle");
+    const mobileMenu = document.getElementById("mobile-menu");
+
+    if (menuToggle && mobileMenu) {
+      // Remove any existing event listeners
+      menuToggle.replaceWith(menuToggle.cloneNode(true));
+      const newMenuToggle = document.getElementById("menu-toggle");
+      
+      newMenuToggle.addEventListener("click", function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        mobileMenu.classList.toggle("hidden");
+        
+        // Toggle icon between menu and X
+        const icon = newMenuToggle.querySelector('[data-lucide]');
+        if (mobileMenu.classList.contains('hidden')) {
+          icon.setAttribute('data-lucide', 'menu');
+        } else {
+          icon.setAttribute('data-lucide', 'x');
+        }
+        lucide.createIcons();
+      });
+
+      // Close menu when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!newMenuToggle.contains(e.target) && !mobileMenu.contains(e.target)) {
+          mobileMenu.classList.add('hidden');
+          const icon = newMenuToggle.querySelector('[data-lucide]');
+          icon.setAttribute('data-lucide', 'menu');
+          lucide.createIcons();
+        }
+      });
+
+      // Close menu when clicking on menu links
+      const menuLinks = mobileMenu.querySelectorAll('a[href^="#"]');
+      menuLinks.forEach(link => {
+        link.addEventListener('click', () => {
+          mobileMenu.classList.add('hidden');
+          const icon = newMenuToggle.querySelector('[data-lucide]');
+          icon.setAttribute('data-lucide', 'menu');
+          lucide.createIcons();
+        });
+      });
+    }
+  }
+
+  // Wait for both DOM and Lucide to be ready
+  function waitForLucide() {
+    if (typeof lucide !== 'undefined' && lucide.createIcons) {
+      lucide.createIcons();
+      initializeMobileMenu();
+    } else {
+      setTimeout(waitForLucide, 100);
+    }
+  }
+
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', waitForLucide);
+  } else {
+    waitForLucide();
+  }
+</script>
 
 
 </body>
