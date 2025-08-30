@@ -74,4 +74,5 @@ group :development, :test do
   gem "rubocop", require: false
 end
 
-gem "twilio-ruby", "~> 7.7.1"
+gem "kaminari", "~> 1.2", ">= 1.2.2"
+gem "ransack", "~> 4.3"

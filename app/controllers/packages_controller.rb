@@ -39,7 +39,8 @@ class PackagesController < ApplicationController
       tracking_provider: params[:tracking_provider],
       tracking_events: safe_parse_events(params[:tracking_events]),
       latest_event_raw: safe_parse_events(params[:latest_event_raw]),
-      full_payload: safe_parse_events(params[:full_payload])
+      full_payload: safe_parse_events(params[:full_payload]),
+      package_name: params[:package_name].presence || params[:tracking_number]
     )
 
     if @package.save
@@ -94,24 +95,14 @@ class PackagesController < ApplicationController
       :destination_city,
       :destination_state,
       :destination_country,
+      :package_name,
       tracking_events: [],
       latest_event_raw: [],
-      full_payload: [],
-      package_name: params[:package_name].presence || params[:tracking_number]
+      full_payload: []
     )
   end
 
   def safe_parse_events(json_string)
     JSON.parse(json_string) rescue []
   end
-
-  # Merge webhook + existing events (no duplicates, newest first)
-  # def merge_tracking_events(existing, incoming)
-  #   existing ||= []
-  #   incoming ||= []
-  #   (existing + incoming)
-  #     .uniq { |e| [ e["status"], e["date"] ] }
-  #     .sort_by { |e| e["date"] }
-  #     .reverse
-  # end
 end

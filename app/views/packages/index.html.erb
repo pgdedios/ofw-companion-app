@@ -49,9 +49,9 @@
             <tr class="hover:bg-gray-50 cursor-pointer" onclick="window.location='<%= package_path(pkg) %>'">
               <td class="px-4 py-3 font-medium text-gray-900 text-center text-xs sm:text-sm"><%= pkg.package_name %></td>
               <td class="px-4 py-3 font-medium text-gray-900 text-center text-xs sm:text-sm hidden md:table-cell"><%= pkg.tracking_number %></td>
-              <td class="px-4 py-3 text-gray-900 text-center text-xs sm:text-sm hidden md:table-cell"><%= pkg.courier_name %></td>
-              <td class="px-4 py-3 text-gray-900 text-center text-xs sm:text-sm"><%= current_status %></td>
-              <td class="px-4 py-3 text-gray-900 text-center text-xs sm:text-sm hidden md:table-cell"><%= truncate(description, length: 50, omission: "...") %></td>
+              <td class="px-4 py-3 font-medium text-gray-900 text-center text-xs sm:text-sm hidden md:table-cell"><%= pkg.courier_name %></td>
+              <td class="px-4 py-3 font-medium text-gray-900 text-center text-xs sm:text-sm"><%= current_status %></td>
+              <td class="px-4 py-3 font-medium text-gray-900 text-center text-xs sm:text-sm hidden md:table-cell"><%= truncate(description, length: 50, omission: "...") %></td>
             </tr>
           <% end %>
         </tbody>
