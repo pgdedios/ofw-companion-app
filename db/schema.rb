@@ -68,6 +68,10 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_30_103129) do
     t.datetime "updated_at", null: false
     t.float "latitude"
     t.float "longitude"
+    t.string "phone"
+    t.float "rating"
+    t.integer "user_ratings_total"
+    t.text "opening_hours"
     t.index ["user_id"], name: "index_remittance_centers_on_user_id"
   end
 
