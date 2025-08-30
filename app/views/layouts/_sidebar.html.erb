@@ -1,13 +1,22 @@
 <!-- Desktop/Laptop Sidebar (hidden on tablet/mobile) -->
 <aside class="hidden lg:flex bg-[#fafafa] w-64 px-6 py-4 flex-col items-stretch gap-6 h-screen fixed border-r border-gray-200">
   
-  <!-- Logo -->
-  <div class="flex items-center justify-between w-full">
-    <div class="flex items-center gap-2 text-2xl tracking-tight">
-      <%= image_tag "ofw-companion-logo.svg", alt: "ofw-logo", class: "w-[6rem] h-[6rem]" %>
-      <!-- <h2 class="inline tracking-tight text-[#222222] font-semibold"> Companion</h2> -->
+ <!-- Logo -->
+<div class="flex items-center justify-between w-full">
+  <div class="flex items-center gap-3">
+    <!-- Logo box -->
+    <div class="w-10 h-10 rounded-lg bg-gray-200 hover:bg-blue-600 flex items-center justify-center">
+      <%= image_tag "ofw-companion-logo.svg", alt: "ofw-logo", class: "w-8 h-8" %>
+    </div>
+
+    <!-- Text -->
+    <div class="flex flex-col leading-tight">
+      <span class="text-md font-semibold">OFW Companion</span>
+      <span class="text-xs text-gray-600">v1.0.0</span>
     </div>
   </div>
+</div>
+
 
   <!-- Nav -->
   <nav class="flex flex-col gap-2 w-full flex-1">
@@ -70,8 +79,8 @@
   <!-- BOTTOM SECTION -->
   <div id="user-info" class="flex justify-between gap-3 mt-auto">
     <div class="flex justify-center items-center gap-2">
-      <div class="rounded-lg h-8 w-8 bg-gray-800 flex justify-center items-center hover:bg-blue-700">
-        <svg class="w-5 h-5 text-gray-200" xmlns="http://www.w3.org/2000/svg"
+      <div class="rounded-lg h-8 w-8 bg-gray-200 flex justify-center items-center hover:bg-blue-700">
+        <svg class="w-5 h-5 text-gray-800" xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round">
           <path d="M18 20a6 6 0 0 0-12 0" />
@@ -81,9 +90,9 @@
       </div>
       <div class="grid flex-1 text-left text-sm leading-tight">
         <span class="truncate font-medium">
-          <%#= @current_user_name.presence || @current_user_username %>
+           <%= current_user.full_name %>
         </span>
-        <span class="truncate text-xs"><%#= @current_user_email %></span>
+        <span class="truncate text-xs"><%= current_user.email %></span>
       </div>
     </div>
 
@@ -109,7 +118,7 @@
   
   <!-- Logo (clickable, goes to dashboard) -->
   <a href="#" class="flex items-center">
-    <%= image_tag "ofw-companion-logo.svg", alt: "ofw-logo", class: "w-[6rem] h-[6rem]" %>
+    <%= image_tag "ofw-companion-logo.svg", alt: "ofw-logo", class: "w-[3rem] h-[3rem]" %>
   </a>
 
   <!-- Burger Menu Button -->
@@ -153,8 +162,8 @@
       <!-- User Info in Mobile Menu -->
       <div class="border-t border-gray-200 pt-3 flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <div class="rounded-lg h-8 w-8 bg-blue-600 flex justify-center items-center hover:bg-blue-700">
-            <svg class="w-5 h-5 text-gray-200" xmlns="http://www.w3.org/2000/svg"
+          <div class="rounded-lg h-8 w-8 bg-gray-200 flex justify-center items-center hover:bg-blue-600">
+            <svg class="w-5 h-5 text-gray-800" xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                   stroke-linecap="round" stroke-linejoin="round">
               <path d="M18 20a6 6 0 0 0-12 0" />
@@ -163,8 +172,8 @@
             </svg>
           </div>
           <div class="text-xs text-gray-600">
-            <div class="font-medium"><%#= @current_user_name.presence || @current_user_username %></div>
-            <div><%#= @current_user_email %></div>
+            <div class="font-medium"><%= current_user.full_name %></div>
+            <div><%= @current_user.email %></div>
           </div>
         </div>
         <%= link_to destroy_user_session_path,
