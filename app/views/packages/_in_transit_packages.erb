@@ -11,7 +11,8 @@
         <table class="w-full text-xs sm:text-sm md:text-sm lg:text-base">
           <thead class="bg-gray-200">
             <tr>
-              <th class="px-2 sm:px-4 py-2 text-center font-medium text-gray-900">Tracking</th>
+              <th class="px-4 py-2 text-center font-medium text-gray-900">Name</th>
+              <th class="px-4 py-2 text-center font-medium text-gray-900 hidden md:table-cell">Tracking</th>
               <th class="px-2 sm:px-4 py-2 text-center font-medium text-gray-900 hidden md:table-cell">Courier</th>
               <th class="px-2 sm:px-4 py-2 text-center font-medium text-gray-900">Status</th>
               <th class="px-2 sm:px-4 py-2 text-center font-medium text-gray-900 hidden md:table-cell">Description</th>
@@ -31,7 +32,8 @@
               <% last_update_formatted = last_update ? Time.zone.parse(last_update.to_s).strftime("%b %d, %Y %I:%M %p") : "N/A" %>
 
               <tr class="hover:bg-gray-50 cursor-pointer" onclick="window.location='<%= package_path(pkg) %>'">
-                <td class="px-2 sm:px-4 py-2 font-medium text-gray-900 text-center"><%= pkg.tracking_number %></td>
+                <td class="px-4 py-3 font-medium text-gray-900 text-center text-xs sm:text-sm"><%= pkg.package_name %></td>
+                <td class="px-4 py-3 font-medium text-gray-900 text-center text-xs sm:text-sm hidden md:table-cell"><%= pkg.tracking_number %></td>
                 <td class="px-2 sm:px-4 py-2 text-gray-900 text-center hidden md:table-cell"><%= pkg.courier_name %></td>
                 <td class="px-2 sm:px-4 py-2 text-gray-900 text-center"><%= current_status %></td>
                 <td class="px-2 sm:px-4 py-2 text-gray-900 text-center hidden md:table-cell"><%= description %></td>

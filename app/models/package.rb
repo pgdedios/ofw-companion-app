@@ -6,4 +6,6 @@ class Package < ApplicationRecord
   validates :tracking_number,
             uniqueness: { scope: [ :user_id, :courier_name ],
                           message: "already exists for this user with this courier" }
+
+  validates :package_name, length: { maximum: 30 }
 end
