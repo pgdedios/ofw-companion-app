@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_08_30_051041) do
+ActiveRecord::Schema[7.2].define(version: 2025_08_30_103129) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -54,6 +54,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_30_051041) do
     t.string "tracking_provider"
     t.string "carrier_code"
     t.jsonb "full_payload", default: []
+    t.string "package_name"
     t.index ["user_id", "tracking_number", "courier_name"], name: "index_unique_tracking_per_user_and_courier", unique: true
     t.index ["user_id"], name: "index_packages_on_user_id"
   end

@@ -96,7 +96,8 @@ class PackagesController < ApplicationController
       :destination_country,
       tracking_events: [],
       latest_event_raw: [],
-      full_payload: []
+      full_payload: [],
+      package_name: params[:package_name].presence || params[:tracking_number]
     )
   end
 
