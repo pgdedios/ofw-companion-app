@@ -8,16 +8,17 @@
 
     <% if in_transit.present? %>
       <div class="overflow-x-auto">
-        <table class="w-full text-xs sm:text-sm md:text-sm lg:text-base">
+        <table class="w-full text-xs sm:text-sm md:text-sm lg:text-base table-fixed">
           <thead class="bg-gray-200">
             <tr>
-              <th class="px-4 py-2 text-center font-medium text-gray-900">Name</th>
-              <th class="px-4 py-2 text-center font-medium text-gray-900 hidden md:table-cell">Tracking</th>
-              <th class="px-2 sm:px-4 py-2 text-center font-medium text-gray-900 hidden md:table-cell">Courier</th>
-              <th class="px-2 sm:px-4 py-2 text-center font-medium text-gray-900">Status</th>
-              <th class="px-2 sm:px-4 py-2 text-center font-medium text-gray-900 hidden md:table-cell">Description</th>
+              <th class="px-4 py-2 text-center font-medium text-gray-900 w-1/5 sm:w-1/6">Name</th>
+              <th class="px-4 py-2 text-center font-medium text-gray-900 hidden md:table-cell w-1/6">Tracking</th>
+              <th class="px-2 sm:px-4 py-2 text-center font-medium text-gray-900 hidden md:table-cell w-1/6">Courier</th>
+              <th class="px-2 sm:px-4 py-2 text-center font-medium text-gray-900 w-1/5 sm:w-1/6">Status</th>
+              <th class="px-2 sm:px-4 py-2 text-center font-medium text-gray-900 hidden md:table-cell w-2/5">Description</th>
             </tr>
           </thead>
+
           <tbody class="bg-white divide-y divide-gray-200">
             <% in_transit.each do |pkg| %>
               <% latest_event = pkg.latest_event_raw || {} %>
@@ -32,11 +33,11 @@
               <% last_update_formatted = last_update ? Time.zone.parse(last_update.to_s).strftime("%b %d, %Y %I:%M %p") : "N/A" %>
 
               <tr class="hover:bg-gray-50 cursor-pointer" onclick="window.location='<%= package_path(pkg) %>'">
-                <td class="px-4 py-3 font-medium text-gray-900 text-center text-xs sm:text-sm"><%= pkg.package_name %></td>
-                <td class="px-4 py-3 font-medium text-gray-900 text-center text-xs sm:text-sm hidden md:table-cell"><%= pkg.tracking_number %></td>
-                <td class="px-4 py-3 font-medium text-gray-900 text-center text-xs sm:text-sm hidden md:table-cell"><%= pkg.courier_name %></td>
-                <td class="px-4 py-3 font-medium text-gray-900 text-center text-xs sm:text-sm"><%= current_status %></td>
-                <td class="px-4 py-3 font-medium text-gray-900 text-center text-xs sm:text-sm hidden md:table-cell"><%= description %></td>
+                <td class="px-4 py-3 font-medium text-gray-900 text-center text-xs sm:text-sm truncate"><%= pkg.package_name %></td>
+                <td class="px-4 py-3 font-medium text-gray-900 text-center text-xs sm:text-sm hidden md:table-cell truncate"><%= pkg.tracking_number %></td>
+                <td class="px-4 py-3 font-medium text-gray-900 text-center text-xs sm:text-sm hidden md:table-cell truncate"><%= pkg.courier_name %></td>
+                <td class="px-4 py-3 font-medium text-gray-900 text-center text-xs sm:text-sm truncate"><%= current_status %></td>
+                <td class="px-4 py-3 font-medium text-gray-900 text-center text-xs sm:text-sm hidden md:table-cell truncate"><%= description %></td>
               </tr>
             <% end %>
           </tbody>

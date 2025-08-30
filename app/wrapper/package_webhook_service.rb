@@ -78,7 +78,7 @@ class PackageWebhookService
     end
 
     if user.contact_number.present?
-      message = "Update on your package #{@package.tracking_number}:\n#{@package.status}#{@package.last_location.present? ? " at {@package.last_location}" : ""}.\nThank you for using OFW Companion"
+      message = "Update on your package #{@package.tracking_number}:\n#{@package.status}#{@package.last_location.present? ? " at #{@package.last_location}" : ""}.\nThank you for using OFW Companion"
       sms_service = IprogSmsService.new(api_token: ENV["IPROG_API_TOKEN"])
       sms_service.send_sms(number: user.contact_number, message: message)
     end
