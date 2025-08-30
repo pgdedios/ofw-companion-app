@@ -28,11 +28,15 @@
             
             <!-- Status: always visible -->
             <th class="px-4 py-2 text-center font-medium text-gray-900">Status</th>
+
+            <!-- Courier: visible on tablet and larger -->
+            <th class="px-4 py-2 text-center font-medium text-gray-900 hidden md:table-cell">Description</th>
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
           <% @packages.each do |pkg| %>
             <% latest_event = pkg.latest_event_raw || {} %>
+            <% description = latest_event["description"] || "Not Specified" %>
             <% current_status =
                   latest_event["stage"].presence ||
                   latest_event["sub_status"].to_s.split("_").first.presence ||
@@ -43,6 +47,7 @@
               <td class="px-4 py-3 font-medium text-gray-900 text-center text-xs sm:text-sm"><%= pkg.tracking_number %></td>
               <td class="px-4 py-3 text-gray-900 text-center text-xs sm:text-sm hidden md:table-cell"><%= pkg.courier_name %></td>
               <td class="px-4 py-3 text-gray-900 text-center text-xs sm:text-sm"><%= current_status %></td>
+              <td class="px-4 py-3 text-gray-900 text-center text-xs sm:text-sm hidden md:table-cell"><%= truncate(description, length: 50, omission: "...") %></td>
             </tr>
           <% end %>
         </tbody>
