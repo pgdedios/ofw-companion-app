@@ -33,6 +33,9 @@ Rails.application.routes.draw do
     delete "currency_converter/conversions/:id", to: "currency_converter#destroy", as: :delete_currency_conversion
     delete "currency_converter/clear_history", to: "currency_converter#clear_history", as: :clear_currency_conversion_history
 
+    # Dashboard currency converter route
+    post 'dashboard/convert_currency', to: 'dashboard#convert_currency' 
+
     # Remittance centers routes
     resources :places, only: [ :index ] do
       post :save, on: :collection

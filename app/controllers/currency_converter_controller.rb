@@ -7,9 +7,7 @@ class CurrencyConverterController < ApplicationController
     @conversions = current_user.currency_conversions.recent_first.limit(10)
   end
 
-  def get_convert
-
-  end
+  def get_convert; end
 
   def convert
     @original_amount = params[:amount].to_f
