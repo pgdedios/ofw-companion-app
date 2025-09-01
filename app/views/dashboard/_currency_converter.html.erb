@@ -1,0 +1,316 @@
+<div class="currency-converter-container">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+    <!-- From Currency -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">From</label>
+      <%= render "currency_dropdown", 
+          name: "from_currency", 
+          currency_list: currency_list, 
+          css_class: "from-currency-dropdown" %>
+    </div>
+
+    <!-- To Currency -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">To</label>
+      <%= render "currency_dropdown", 
+          name: "to_currency", 
+          currency_list: currency_list, 
+          css_class: "to-currency-dropdown" %>
+    </div>
+  </div>
+
+  <!-- Convert Button -->
+  <div class="flex justify-center mb-4">
+    <button id="convert-btn" 
+            class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled>
+      <span class="convert-text">Convert</span>
+      <span class="loading-text hidden">Converting...</span>
+    </button>
+  </div>
+
+  <!-- Conversion Result -->
+  <div id="conversion-result" class="hidden">
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+      <div class="text-lg font-semibold text-blue-800" id="conversion-display"></div>
+      <div class="text-sm text-blue-600 mt-1" id="conversion-timestamp"></div>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div id="conversion-error" class="hidden">
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+      <div class="text-red-800" id="error-message"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Function to initialize the currency converter
+function initializeCurrencyConverter() {
+  const convertBtn = document.getElementById('convert-btn');
+  const conversionResult = document.getElementById('conversion-result');
+  const conversionError = document.getElementById('conversion-error');
+  const conversionDisplay = document.getElementById('conversion-display');
+  const conversionTimestamp = document.getElementById('conversion-timestamp');
+  const errorMessage = document.getElementById('error-message');
+  
+  // Return early if elements don't exist
+  if (!convertBtn || !conversionResult) return;
+  
+  let fromCurrency = '';
+  let toCurrency = '';
+
+  // Load saved conversion on page load
+  loadSavedConversion();
+
+  // Handle dropdown selections with event delegation
+  document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('option')) {
+      const dropdown = e.target.closest('.custom-dropdown');
+      if (!dropdown) return;
+      
+      const hiddenInput = dropdown.querySelector('input[type="hidden"]');
+      const selected = dropdown.querySelector('.selected span');
+      const currencyCode = e.target.getAttribute('data-value');
+      const currencyName = e.target.getAttribute('data-name');
+      const flagSrc = e.target.getAttribute('data-flag');
+
+      // Update display
+      selected.innerHTML = `
+        <div class="flex items-center gap-2">
+          <img src="${flagSrc}" alt="${currencyName}" class="w-5 h-4">
+          <span>${currencyCode}</span>
+        </div>
+      `;
+      
+      // Update hidden input
+      hiddenInput.value = currencyCode;
+
+      // Update currency variables
+      if (hiddenInput.name === 'from_currency') {
+        fromCurrency = currencyCode;
+      } else if (hiddenInput.name === 'to_currency') {
+        toCurrency = currencyCode;
+      }
+
+      // Enable convert button if both currencies are selected
+      checkConvertButton();
+      
+      // Hide dropdown
+      dropdown.querySelector('.options').classList.add('hidden');
+
+      // Auto-convert if we have a saved conversion and both currencies match
+      autoConvertIfSaved();
+    }
+  });
+
+  // Handle dropdown toggle with event delegation
+  document.addEventListener('click', function(e) {
+    if (e.target.closest('.selected')) {
+      const dropdown = e.target.closest('.custom-dropdown');
+      if (!dropdown) return;
+      
+      const options = dropdown.querySelector('.options');
+      
+      // Close other dropdowns
+      document.querySelectorAll('.custom-dropdown .options').forEach(opt => {
+        if (opt !== options) {
+          opt.classList.add('hidden');
+        }
+      });
+      
+      // Toggle current dropdown
+      options.classList.toggle('hidden');
+    } else if (!e.target.closest('.custom-dropdown')) {
+      // Close all dropdowns when clicking outside
+      document.querySelectorAll('.custom-dropdown .options').forEach(opt => {
+        opt.classList.add('hidden');
+      });
+    }
+  });
+
+  // Convert button click handler
+  if (convertBtn) {
+    convertBtn.removeEventListener('click', handleConvertClick);
+    convertBtn.addEventListener('click', handleConvertClick);
+  }
+
+  function handleConvertClick() {
+    if (!fromCurrency || !toCurrency) return;
+    performConversion();
+  }
+
+  function checkConvertButton() {
+    if (fromCurrency && toCurrency && fromCurrency !== toCurrency) {
+      convertBtn.disabled = false;
+    } else {
+      convertBtn.disabled = true;
+    }
+  }
+
+  function performConversion() {
+    // Show loading state
+    convertBtn.disabled = true;
+    document.querySelector('.convert-text').classList.add('hidden');
+    document.querySelector('.loading-text').classList.remove('hidden');
+    
+    // Hide previous results
+    conversionResult.classList.add('hidden');
+    conversionError.classList.add('hidden');
+
+    // Make API call
+    fetch('/dashboard/convert_currency', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+      },
+      body: JSON.stringify({
+        from_currency: fromCurrency,
+        to_currency: toCurrency
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Display result
+        conversionDisplay.textContent = `1 ${fromCurrency} = ${data.rate} ${toCurrency}`;
+        conversionTimestamp.textContent = `Last updated: ${new Date().toLocaleString()}`;
+        conversionResult.classList.remove('hidden');
+        
+        // Save conversion to localStorage
+        saveConversion(fromCurrency, toCurrency, data.rate);
+      } else {
+        // Display error
+        errorMessage.textContent = data.error || 'Conversion failed. Please try again.';
+        conversionError.classList.remove('hidden');
+      }
+    })
+    .catch(error => {
+      console.error('Conversion error:', error);
+      errorMessage.textContent = 'Network error. Please check your connection and try again.';
+      conversionError.classList.remove('hidden');
+    })
+    .finally(() => {
+      // Reset button state
+      convertBtn.disabled = false;
+      document.querySelector('.convert-text').classList.remove('hidden');
+      document.querySelector('.loading-text').classList.add('hidden');
+      checkConvertButton();
+    });
+  }
+
+  function saveConversion(from, to, rate) {
+    const conversionData = {
+      from_currency: from,
+      to_currency: to,
+      rate: rate,
+      timestamp: new Date().toISOString()
+    };
+    localStorage.setItem('last_currency_conversion', JSON.stringify(conversionData));
+  }
+
+  function loadSavedConversion() {
+    const saved = localStorage.getItem('last_currency_conversion');
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        fromCurrency = data.from_currency;
+        toCurrency = data.to_currency;
+        
+        // Set the dropdowns to saved values
+        setDropdownValue('from_currency', data.from_currency);
+        setDropdownValue('to_currency', data.to_currency);
+        
+        // Auto-convert with fresh rate
+        if (fromCurrency && toCurrency) {
+          setTimeout(() => {
+            performConversion();
+          }, 500);
+        }
+      } catch (error) {
+        console.error('Error loading saved conversion:', error);
+      }
+    }
+  }
+
+  function setDropdownValue(inputName, currencyCode) {
+    const dropdown = document.querySelector(`input[name="${inputName}"]`)?.closest('.custom-dropdown');
+    if (!dropdown) return;
+    
+    const option = dropdown.querySelector(`[data-value="${currencyCode}"]`);
+    
+    if (option) {
+      const selected = dropdown.querySelector('.selected span');
+      const flagSrc = option.getAttribute('data-flag');
+      const currencyName = option.getAttribute('data-name');
+      
+      selected.innerHTML = `
+        <div class="flex items-center gap-2">
+          <img src="${flagSrc}" alt="${currencyName}" class="w-5 h-4">
+          <span>${currencyCode}</span>
+        </div>
+      `;
+      
+      dropdown.querySelector('input[type="hidden"]').value = currencyCode;
+    }
+  }
+
+  function autoConvertIfSaved() {
+    const saved = localStorage.getItem('last_currency_conversion');
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        if (data.from_currency === fromCurrency && data.to_currency === toCurrency) {
+          performConversion();
+        }
+      } catch (error) {
+        console.error('Error in auto-convert:', error);
+      }
+    }
+  }
+}
+
+// Global function for re-initialization
+window.reinitializeCurrencyConverter = function() {
+  setTimeout(function() {
+    if (document.getElementById('convert-btn')) {
+      initializeCurrencyConverter();
+    }
+  }, 200);
+};
+
+// Initialize on DOM ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeCurrencyConverter);
+} else {
+  initializeCurrencyConverter();
+}
+
+// Re-initialize when navigating back to the page
+document.addEventListener('turbo:load', initializeCurrencyConverter);
+document.addEventListener('turbo:render', initializeCurrencyConverter);
+
+// Handle page visibility changes
+document.addEventListener('visibilitychange', function() {
+  if (!document.hidden) {
+    window.reinitializeCurrencyConverter();
+  }
+});
+
+// Handle browser back/forward navigation
+window.addEventListener('popstate', function() {
+  window.reinitializeCurrencyConverter();
+});
+
+// For non-Turbo applications (standard page navigation)
+window.addEventListener('pageshow', function(event) {
+  if (event.persisted) {
+    setTimeout(initializeCurrencyConverter, 100);
+  }
+});
+
+// Initialize immediately if elements are already present
+setTimeout(initializeCurrencyConverter, 100);
+</script>
