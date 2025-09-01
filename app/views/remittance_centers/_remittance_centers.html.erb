@@ -1,34 +1,43 @@
 <% if @remittance_centers.any? %>
-  <ul class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <% @remittance_centers.each do |center| %>
-      <li class="flex flex-col justify-between p-6 border bg-white rounded-md shadow-sm">
-        <div>
-          <strong class="text-base text-gray-800"><%= center.name %></strong><br>
-          <span class="text-sm text-gray-600"><%= center.address %></span><br>
-        </div>
+      <div class="flex flex-col justify-between p-6 border bg-white rounded-md shadow hover:shadow-md transition">
+        <h2 class="text-lg font-semibold text-gray-800"><%= center.name %></h2>
+        <p class="text-sm text-gray-600"><strong>Address:</strong> <%= center.address %></p>
+        <p class="text-sm text-gray-600"><strong>Phone:</strong> <%= center.phone.presence || "Not available" %></p>
+        <p class="text-sm text-gray-600"><strong>Rating:</strong> <%= center.rating || "No rating" %> (<%= center.user_ratings_total || 0 %> reviews)</p>
+        <p class="text-sm text-gray-600"><strong>Hours:</strong><br>
+          <% if center.opening_hours.present? %>
+            <% center.opening_hours.each do |hour| %>
+              <span><%= hour %></span><br>
+            <% end %>
+          <% else %>
+            <em>No hours available</em>
+          <% end %>
+        </p>
 
-        <div class="flex mt-4 gap-6">
+        <div class="flex mt-4 gap-4">
           <% if center.latitude.present? && center.longitude.present? %>
             <%= link_to "View on Google Maps", 
                         "https://www.google.com/maps/search/?api=1&query=#{center.latitude},#{center.longitude}", 
                         target: "_blank", 
-                        class: "inline-block text-gray-600 rounded hover:text-blue-600 text-sm" %>
+                        class: "text-blue-600 hover:underline text-sm" %>
           <% else %>
             <span class="text-yellow-600 text-sm">Coordinates not available</span>
           <% end %>
 
-          <%= button_to remittance_center_path(center), method: :delete, data: { confirm: "Are you sure?" }, class: "inline-flex items-center gap-2 text-gray-600 rounded hover:text-red-600 text-sm" do %>
+          <%= button_to remittance_center_path(center), method: :delete, data: { confirm: "Are you sure?" }, class: "inline-flex items-center gap-2 text-red-600 hover:text-red-800 text-sm" do %>
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
             Remove
           <% end %>
         </div>
-      </li>
+      </div>
     <% end %>
-  </ul>
+  </div>
 <% else %>
-  <p class="text-gray-600 text-center sm:text-left">
+  <div>
     <%= render "remittance_centers/nil_remittance_centers" %>
-  </p>
+  </div>
 <% end %>

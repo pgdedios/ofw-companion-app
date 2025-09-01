@@ -1,0 +1,17 @@
+<div class="border rounded-lg p-4 mb-4 bg-white shadow-sm" data-place-id="<%= place[:place_id] %>">
+  <h2 class="text-xl font-semibold text-gray-800"><%= place[:name] %></h2>
+  <p class="text-gray-600"><strong>Address:</strong> <%= place[:address] %></p>
+  <p><strong>Rating:</strong> <%= number_with_precision(place[:rating], precision: 1) %> 
+     (<%= number_with_delimiter(place[:user_ratings_total]) %> reviews)</p>
+  <p class="text-sm text-gray-500"><strong>Coordinates:</strong> <%= place[:latitude] %>, <%= place[:longitude] %></p>
+
+  <% if place[:saved] %>
+    <span class="inline-block mt-2 px-3 py-1 text-sm bg-green-100 text-green-800 rounded-full">Saved</span>
+  <% else %>
+    <%= form_with url: remittance_centers_path, method: :post, local: true,
+                  data: { controller: "save-place", "save-place-place-id-value": place[:place_id] } do |f| %>
+      <%= f.hidden_field :place_id, value: place[:place_id] %>
+      <%= f.submit "Save this place", class: "btn-secondary mt-2" %>
+    <% end %>
+  <% end %>
+</div>
