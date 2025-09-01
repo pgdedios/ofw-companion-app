@@ -8,7 +8,6 @@ class CurrencyConverterController < ApplicationController
   end
 
   def get_convert
-
   end
 
   def convert
