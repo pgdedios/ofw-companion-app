@@ -1,56 +1,50 @@
-
 class PlacesController < ApplicationController
   before_action :authenticate_user!
+  before_action :set_search_params, only: [ :index ]
+  before_action :set_google_service, only: [ :index ]
 
   def index
-    @places = []
-    @saved_place_ids = current_user.remittance_centers.pluck(:place_id)
+    @places = fetch_places
+  end
 
-    if params[:cached_places].present?
-      @places = JSON.parse(params[:cached_places])
-    elsif params[:location].present?
-      service = GooglePlacesService.new
-      response = service.nearby_search(
-        location: params[:location],
-        radius: params[:radius] || 1000,
-        keyword: params[:keyword] || "remittance",
-        type: params[:type]
+  private
+
+  def set_search_params
+    @location = params[:location]
+    @radius = [ params[:radius]&.to_i, 1000 ].compact.max
+    @keyword = params[:keyword].presence || "remittance center"
+  end
+
+  def set_google_service
+    @service = GooglePlacesService.new
+  end
+
+  def fetch_places
+    return [] unless @location.present?
+
+    begin
+      raw_places = @service.nearby_search(
+        location: @location,
+        radius: @radius,
+        keyword: @keyword
       )
-      @places = response["results"] || []
-    end
-  end
 
-
-  def save
-    current_user.remittance_centers.find_or_create_by(
-      place_id: params[:place_id],
-      name: params[:name],
-      address: params[:address],
-      latitude: params[:lat],
-      longitude: params[:lng]
-    )
-
-    redirect_to places_path(
-      location: params[:location],
-      radius: params[:radius],
-      keyword: params[:keyword],
-      lat: params[:lat],
-      lng: params[:lng],
-      cached_places: params[:cached_places]
-    ), notice: "Remittance center saved!"
-  end
-
-
-  def geocode_address
-    address = params[:address]
-    service = GooglePlacesService.new
-    result = service.geocode_address(address)
-
-    if result["status"] == "OK"
-      location = result["results"][0]["geometry"]["location"]
-      render json: { lat: location["lat"], lng: location["lng"] }
-    else
-      render json: { error: "Geocoding failed" }, status: :unprocessable_entity
+      raw_places.map do |place|
+        {
+          place_id: place[:place_id],
+          name: place[:name] || "Unnamed Place",
+          address: place[:vicinity] || "No address available",
+          latitude: place.dig(:geometry, :location, :lat),
+          longitude: place.dig(:geometry, :location, :lng),
+          rating: place[:rating] || 0.0,
+          user_ratings_total: place[:user_ratings_total] || 0,
+          saved: current_user.remittance_centers.exists?(place_id: place[:place_id])
+        }
+      end
+    rescue => e
+      Rails.logger.error("[PlacesController] Error fetching places: #{e.message}")
+      flash.now[:alert] = "Failed to fetch nearby places. Please try again later."
+      []
     end
   end
 end

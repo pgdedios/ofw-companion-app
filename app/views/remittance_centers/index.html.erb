@@ -1,21 +1,26 @@
+<!-- Sidebar -->
 <div>
   <%= render "layouts/sidebar" %>
 </div>
 
-<div class="flex-1 p-6 md:p-10 mb-6 lg:ml-64 min-h-dvh space-y-6 bg-gray-50">
-  <div class="flex justify-between items-center">
-    <h1 class="text-xl sm:text-2xl font-semibold text-gray-800 text-left">
-      Saved Remittance Centers
-    </h1>
+<!-- Main Content -->
+<div class="flex-1 p-6 md:p-10 lg:ml-64 min-h-dvh space-y-6 bg-gray-50">
+  <div class="flex flex-col md:flex-row gap-4 sm:justify-between items-start">
+    <!-- Remittance Center Header -->
+    <%= render 'shared/page_header', title: 'Saved Remittance Centers', subtitle: nil %>
 
-    <%= link_to places_path, class: "inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm" do %>
+
+    <%= button_to "Refresh All", refresh_remittance_centers_path, method: :patch, data: { turbo: false }, class: "inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 sm:text-sm text-xs shadow" %>
+
+    <!-- Link to Search Nearby Remittance Centers -->
+    <%= link_to places_path, class: "inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 sm:text-sm text-xs shadow" do %>
       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
       </svg>
       Add Nearby Remittance Centers
     <% end %>
   </div>
-  
+
+  <!-- Saved Remittance Centers -->
   <%= render "remittance_centers" %>
 </div>
-

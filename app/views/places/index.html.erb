@@ -1,94 +1,71 @@
+<!-- Sidebar -->
 <div>
   <%= render "layouts/sidebar" %>
 </div>
 
-<div data-controller="location" class="flex-1 p-6 md:p-10 lg:ml-64 min-h-dvh space-y-6 bg-gray-50">
-  <%= link_to "View My Saved Remittance Centers", remittance_centers_path, class: "text-blue-600 hover:underline font-semibold block text-center sm:text-left" %>
+<!-- Main Content -->
+<div class="flex-1 p-6 md:p-10 mb-6 lg:ml-64 min-h-dvh space-y-6 bg-gray-50">
 
-  <hr class="border-gray-300">
+  <!-- Header -->
+  <%= render 'shared/page_header', 
+    title: 'Nearby Remittance Centers', 
+    subtitle: 'Search for nearby remittance centers' %>
 
-  <h1 class="text-xl sm:text-2xl font-bold text-gray-800 text-center sm:text-left">Nearby Remittance Centers</h1>
+  <!-- Search Form -->
+  <div data-controller="location" class="bg-white p-6 rounded-md shadow-sm">
+    <%= form_with url: places_path, method: :get, local: false, html: { data: { location_target: "form" }, class: "space-y-4" } do %>
+      <div class="flex flex-col sm:flex-row items-center gap-4">
+        <label for="radius" class="text-sm font-medium text-gray-700">Radius (meters):</label>
+        <%= number_field_tag :radius, params[:radius], min: 1000, max: 50000, data: { location_target: "radius" }, id: "radius", class: "w-full sm:w-40 px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" %>
 
-  <h2 class="text-base sm:text-lg font-semibold text-gray-700">Select Location Source</h2>
+        <%= hidden_field_tag :keyword, params[:keyword], data: { location_target: "keyword" } %>
 
-  <div class="space-y-2">
-    <label class="flex items-center space-x-2">
-      <input type="radio" name="location_type" value="current" data-location-target="type" checked class="form-radio text-blue-600">
-      <span>Use Current Location</span>
-    </label>
-
-    <label class="flex items-center space-x-2">
-      <input type="radio" name="location_type" value="saved" data-location-target="type" class="form-radio text-blue-600">
-      <span>Use Saved Address</span>
-    </label>
+        <%= button_tag "Search Nearby", type: "button", data: { action: "location#search" }, class: "inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm shadow" %>
+      </div>
+    <% end %>
   </div>
 
-  <input type="hidden" data-location-target="savedAddress" value="<%= current_user.current_address || '' %>">
+  <!-- Results -->
+  <% if @places.present? %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% @places.each do |place| %>
+        <div class="bg-white p-6 rounded-md shadow hover:shadow-md transition">
+          <h2 class="text-lg font-semibold text-gray-800"><%= place[:name] %></h2>
+          <p class="text-sm text-gray-600"><strong>Address:</strong> <%= place[:address] %></p>
+          <p class="text-sm text-gray-600"><strong>Rating:</strong> <%= place[:rating] %> (<%= place[:user_ratings_total] %> reviews)</p>
+          <p class="text-sm text-gray-600"><strong>Coordinates:</strong> <%= place[:latitude] %>, <%= place[:longitude] %></p>
 
-  <button type="button" data-action="click->location#loadCoordinates" class="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-    Set Location
-  </button>
-
-  <p data-location-target="output" class="text-sm text-gray-600"></p>
-
-  <%= form_with url: places_path, method: :get, local: true, class: "space-y-4" do %>
-    <div class="hidden">
-      <label class="block text-sm font-medium text-gray-700">Latitude:</label>
-      <%= text_field_tag :lat, params[:lat], data: { location_target: "lat" }, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm" %>
+          <% if place[:saved] %>
+            <button disabled class="mt-4 w-full px-4 py-2 bg-gray-300 text-gray-700 rounded text-sm cursor-not-allowed">
+              Already Saved
+            </button>
+          <% else %>
+            <turbo-frame id="place_<%= place[:place_id] %>">
+              <%= form_with url: remittance_centers_path, method: :post do %>
+                <%= hidden_field_tag "place[place_id]", place[:place_id] %>
+                <%= submit_tag "Save this place", class: "w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm shadow" %>
+              <% end %>
+            </turbo-frame>
+          <% end %>
+        </div>
+      <% end %>
     </div>
-
-    <div class="hidden">
-      <label class="block text-sm font-medium text-gray-700">Longitude:</label>
-      <%= text_field_tag :lng, params[:lng], data: { location_target: "lng" }, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm" %>
-    </div>
-
-    <%= hidden_field_tag :location, params[:location], data: { location_target: "locationField" } %>
-
-    <div>
-      <label class="block text-sm font-medium text-gray-700">Radius (meters):</label>
-      <%= number_field_tag :radius, params[:radius] || 1000, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm" %>
-    </div>
-
-    <div class="hidden">
-      <label class="block text-sm font-medium text-gray-700">Keyword:</label>
-      <%= text_field_tag :keyword, params[:keyword] || 'remittance', class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm" %>
-    </div>
-
-    <%= hidden_field_tag :cached_places, @places.to_json if @places.present? %>
-
-    <%= submit_tag "Search", class: "w-full sm:w-auto px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700" %>
-  <% end %>
-
-  <% if params[:lat].present? && params[:lng].present? %>
-    <hr class="border-gray-300">
-
-    <% if @places.any? %>
-      <ul class="space-y-4">
-        <% @places.each do |place| %>
-          <li class="p-4 border rounded-md shadow-sm">
-            <strong class="text-base sm:text-lg text-gray-800"><%= place['name'] %></strong><br>
-            <span class="text-sm text-gray-600"><%= place['vicinity'] %></span><br>
-
-            <% if @saved_place_ids.include?(place['place_id']) %>
-              <span class="text-green-600 font-semibold">✅ Already saved</span>
-            <% else %>
-              <%= button_to "Save Remittance Center", save_places_path(
-                  place_id: place['place_id'],
-                  name: place['name'],
-                  address: place['vicinity'],
-                  lat: place['geometry']['location']['lat'],
-                  lng: place['geometry']['location']['lng'],
-                  location: params[:location],
-                  radius: params[:radius],
-                  keyword: params[:keyword],
-                  cached_places: params[:cached_places]
-                ), method: :post, class: "mt-2 w-full sm:w-auto px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600" %>
-            <% end %>
-          </li>
-        <% end %>
-      </ul>
-    <% else %>
-      <p class="text-red-600 font-medium">No remittance centers found. Try adjusting your search.</p>
-    <% end %>
   <% end %>
 </div>
+
+<!-- Script to disable saved button -->
+<script>
+  const savedPlaceId = "<%= @saved_place_id %>";
+  if (savedPlaceId) {
+    const form = document.querySelector(`form[data-place-id="${savedPlaceId}"]`);
+    if (form) {
+      const button = form.querySelector("input[type='submit']");
+      if (button) {
+        button.disabled = true;
+        button.value = "Already Saved";
+        button.classList.add("bg-gray-300", "text-gray-700", "cursor-not-allowed");
+        button.classList.remove("bg-blue-600", "hover:bg-blue-700");
+      }
+    }
+  }
+</script>

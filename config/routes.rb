@@ -34,13 +34,11 @@ Rails.application.routes.draw do
     delete "currency_converter/clear_history", to: "currency_converter#clear_history", as: :clear_currency_conversion_history
 
     # Remittance centers routes
-    resources :places, only: [ :index ] do
-      post :save, on: :collection
-    end
-
-    resources :remittance_centers, only: [ :index, :destroy ] do
+    resources :places, only: [ :index ]
+    resources :remittance_centers, only: [ :index, :create, :destroy ] do
       collection do
         get :map
+        patch :refresh
       end
     end
 

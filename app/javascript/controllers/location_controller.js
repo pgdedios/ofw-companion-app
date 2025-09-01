@@ -1,39 +1,57 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["type", "output", "savedAddress", "lat", "lng", "locationField"]
+  static targets = ["form", "radius", "keyword"]
 
-  loadCoordinates() {
-    const selected = this.typeTargets.find(r => r.checked).value;
+  connect() {
+    console.log("LocationController connected")
+  }
 
-    const updateFields = (lat, lng) => {
-      this.latTarget.value = lat;
-      this.lngTarget.value = lng;
-      this.locationFieldTarget.value = `${lat},${lng}`;
-      this.outputTarget.textContent = `Latitude: ${lat}, Longitude: ${lng}`;
-    };
+  search(event) {
+    event.preventDefault()
 
-    if (selected === "current") {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((position) => {
-          updateFields(position.coords.latitude, position.coords.longitude);
-        }, () => {
-          this.outputTarget.textContent = "Unable to retrieve your location.";
-        });
-      } else {
-        this.outputTarget.textContent = "Geolocation is not supported by your browser.";
-      }
-    } else {
-      const address = this.savedAddressTarget.value;
-      fetch(`/geocode_address?address=${encodeURIComponent(address)}`)
-        .then(response => response.json())
-        .then(data => {
-          if (data.lat && data.lng) {
-            updateFields(data.lat, data.lng);
-          } else {
-            this.outputTarget.textContent = "Could not geocode the saved address.";
-          }
-        });
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser.")
+      return
     }
+
+    const onSuccess = (position) => {
+      const { latitude: lat, longitude: lng } = position.coords
+      const radius = this.radiusTarget.value || "1000"
+      const keyword = this.keywordTarget.value || "remittance center"
+
+      const url = new URL(this.formTarget.action, window.location.origin)
+      url.searchParams.set("location", `${lat},${lng}`)
+      url.searchParams.set("radius", radius)
+      url.searchParams.set("keyword", keyword)
+
+      console.log("🔍 Searching near:", url.toString())
+      Turbo.visit(url)
+    }
+
+    const onError = (error) => {
+      let message = "Unable to retrieve your location."
+      switch (error.code) {
+        case error.PERMISSION_DENIED:
+          message = "Please allow location access in your browser settings."
+          break
+        case error.POSITION_UNAVAILABLE:
+          message = "Location information is unavailable. Check GPS or network."
+          break
+        case error.TIMEOUT:
+          message = "Location request timed out. Please try again."
+          break
+        default:
+          message += " Check your internet connection."
+      }
+      alert(message)
+      console.error("Geolocation error:", error)
+    }
+
+    navigator.geolocation.getCurrentPosition(onSuccess, onError, {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 60000
+    })
   }
 }

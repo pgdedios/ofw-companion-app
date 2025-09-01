@@ -1,6 +1,7 @@
 <% if @remittance_centers.any? %>
   <ul class="grid grid-cols-1">
     <% @remittance_centers.each do |center| %>
+      <hr class="border-gray-300">
       <li class="flex flex-col justify-between p-6 bg-white">
         <div>
           <strong class="text-base text-gray-800"><%= center.name %></strong><br>
@@ -18,7 +19,7 @@
           <% end %>
         </div>
       </li>
-      <hr class="border-gray-300">
+      
     <% end %>
   </ul>
 <% else %>
