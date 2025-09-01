@@ -37,7 +37,6 @@ Rails.application.routes.draw do
     resources :places, only: [ :index ]
     resources :remittance_centers, only: [ :index, :create, :destroy ] do
       collection do
-        get :map
         patch :refresh
       end
     end
@@ -49,4 +48,6 @@ Rails.application.routes.draw do
   unauthenticated do
     root to: "home#index", as: :unauthenticated_root
   end
+
+  match "*path", to: "errors#not_found", via: :all
 end
