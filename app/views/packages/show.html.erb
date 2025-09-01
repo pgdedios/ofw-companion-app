@@ -1,13 +1,11 @@
-<div>
-  <%= render "layouts/sidebar" %>
-</div>
-
 <div class="flex-1 p-10 lg:ml-64 min-h-dvh bg-gray-50">
+  <!--
   <div class="mb-4">
     <%= link_to "Back to Packages", packages_path, class: "text-blue-600 hover:underline" %>
   </div>
   
   <h1 class="text-2xl font-bold mb-4">Package Details</h1>
+  -->
   
   <!-- Modal overlay -->
   <div id="packageModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -15,7 +13,7 @@
   
       <!-- Header inside modal -->
       <div class="flex justify-between items-center px-4 py-2 border-b">
-        <h2 class="text-lg font-semibold">Package Details</h2>
+        <h2 class="text-lg font-semibold"><%= "Package Details (#{@package.package_name})" %></h2>
         <button onclick="window.location='<%= packages_path %>'" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
       </div>
   
@@ -43,14 +41,14 @@
               <% description_value = latest_event["description"].presence || @package.latest_description.presence || "Not Specified" %>
               <% last_update_value = latest_event["time_utc"].presence || @package.last_update %>
               <% pickup_date = (@package.tracking_events.find{ |e| e["stage"] == "PickedUp" }.presence || @package.tracking_events.last)&.dig("time_utc") %>
-              <% time_metrics = @package.full_payload.dig(0, "track_info", "time_metrics") || {} %>
+              <% time_metrics = entry_with_stage.dig("track_info", "time_metrics") || {} %>
       
               <p><strong>Tracking Number:</strong> <%= @package.tracking_number %></p>
               <p><strong>Courier:</strong> <%= @package.courier_name.presence || "N/A" %></p>
               <p><strong>Courier Code:</strong> <%= @package.carrier_code.presence || "N/A" %></p>
               <p><strong>Status:</strong> <%= stage_value.gsub(/([a-z])([A-Z])/, '\1 \2').titleize %></p>
               <p><strong>Pick-up Date:</strong> <%= pickup_date ? Time.use_zone(current_user.time_zone) { pickup_date.in_time_zone.strftime("%b %d, %Y %I:%M %p") } : "Not Specified" %>
-              <p><strong>Days In Transit:</strong> <%= time_metrics["days_of_transit_done"].presence || time_metrics["days_of_transit"] %></p>
+              <p><strong>Days In Transit:</strong> <%= time_metrics["days_of_transit"].presence || time_metrics["days_of_transit_done"] %></p>
               <p><strong>Last Location:</strong> <%= location_value %></p>
               <p><strong>Last Update:</strong> <%= last_update_value ? Time.zone.parse(last_update_value.to_s).strftime("%b %d, %Y %I:%M %p") : "N/A" %></p>
               <p><strong>Expected Delivery:</strong> <%= @package.expected_delivery ? @package.expected_delivery.strftime("%b %d, %Y") : "Not Specified" %></p>
@@ -67,13 +65,13 @@
                   []
                 end.sort_by { |e| e["time_utc"] || "" }.reverse %>
 
-              <% events = entry_with_stage.dig("track_info", "tracking", "providers", 0, "events") %>
+              <%# events = entry_with_stage.dig("track_info", "tracking", "providers", 0, "events") %>
 
               <% if events.any? %>
                 <ul class="space-y-2">
                   <% events.each do |event| %>
                     <% stage_val = event["stage"].presence || event["sub_status"].to_s.split("_").first.presence || "N/A" %>
-                    <% loc_val = event.dig("address","city").presence || event.dig("address","state").presence || event["location"].presence || "Not Specified" %>
+                    <% loc_val = [event.dig("address","city"), event.dig("address","state"), event.dig("address","country")].select(&:present?).join(", ").presence || event["location"].presence || "Not Specified" %>
                     <% desc_val = event["description"].presence || "N/A" %>
                     <% time_val = event["time_utc"] %>
                     <li class="p-2 border rounded">
@@ -117,7 +115,10 @@
 
       <!-- Buttons inside footer -->
       <div class="flex justify-end px-4 py-2 border-t space-x-2">
-        <button onclick="window.location='<%= packages_path %>'" class="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300">Close</button>
+        <button onclick="window.location='<%= request.referrer || root_path %>'"
+                class="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300">
+          Close
+        </button>
         <%= button_to "Delete", package_path(@package), method: :delete,
         data: { turbo_confirm: "Are you sure you want to delete this package?" },
         class: "bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600" %>

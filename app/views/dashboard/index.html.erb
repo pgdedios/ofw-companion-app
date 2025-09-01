@@ -1,14 +1,10 @@
-<div>
-  <%= render "layouts/sidebar" %>
-</div>
-
-<div class="flex-1 p-10 lg:ml-64 min-h-dvh bg-gray-100">
-  <h1 class="text-2xl font-semibold mb-6 text-gray-800">Dashboard</h1>
+<div class="flex-1 p-4 sm:p-6 lg:p-8 lg:ml-64 h-auto min-h-dvh lg:h-dvh bg-gray-100 flex flex-col">
+  <h1 class="text-2xl font-semibold mb-4 text-gray-800">Dashboard</h1>
 
   <!-- Main Body -->
-  <div class="grid grid-cols-1 gap-4">
+  <div class="flex-1 grid grid-cols-1 gap-4">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="grid grid-rows-2 gap-4">
+      <div class="grid grid-rows-2 gap-4 overflow-hidden">
         <!-- Currency Conversion -->
         <div class="min-h-[10rem] p-6 border bg-white rounded-md shadow-sm">
           <h2 class="text-lg font-semibold text-gray-800">Currency Conversion</h2>
@@ -16,7 +12,6 @@
 
         <!-- World Clock -->
         <div class="min-h-[10rem] p-6 border bg-white rounded-md shadow-sm items-center justify-center content-center">
-          <%# <h2 class="text-lg font-semibold text-gray-800">Home Clock</h2> %>
           <%= render "home_clock" %>
         </div>
       </div>
@@ -37,11 +32,20 @@
     </div>
 
     <!-- Package Tracker -->
-    <div class="min-h-[15rem] p-6 border bg-white rounded-md shadow-sm">
-      <h2 class="text-lg font-semibold text-gray-800">Package Tracker</h2>
-      <div class="my-4">
-        <%= render "packages/in_transit_packages", packages: @packages %>
-      </div>      
+    <div class="border bg-white rounded-md shadow-sm flex flex-col h-full min-h-[20rem]">
+      <!-- Sticky Header -->
+      <div class="flex justify-between items-center px-6 py-4 bg-white sticky top-0 z-10 rounded-t-md">
+        <h2 class="text-lg font-semibold text-gray-800">Package Tracker</h2>
+        <%= link_to "View All", packages_path, class: "text-blue-600 hover:text-blue-800 text-sm font-medium" %>
+      </div>
+      <hr class="border-gray-300">
+
+      <!-- Scrollable Content Area -->
+      <div class="flex-1 overflow-y-auto">
+        <div class="p-6">
+          <%= render "packages/in_transit_packages", packages: @packages %>
+        </div>
+      </div>
     </div>
   </div>
 </div>

@@ -1,8 +1,14 @@
 class CurrencyConverterController < ApplicationController
   before_action :authenticate_user!
 
+  layout "template"
+
   def index
     @conversions = current_user.currency_conversions.recent_first.limit(10)
+  end
+
+  def get_convert
+
   end
 
   def convert
@@ -32,8 +38,8 @@ class CurrencyConverterController < ApplicationController
       # Reload conversions for the view
       @conversions = current_user.currency_conversions.recent_first.limit(10)
 
-      # Render the index page with results instead of separate page
-      render :index
+      # redirect to index page of currency_converter
+      redirect_to currency_converter_path
     else
       flash.now[:error] = "Unable to convert currency. Please try again."
       @conversions = current_user.currency_conversions.recent_first.limit(10)
@@ -44,11 +50,11 @@ class CurrencyConverterController < ApplicationController
   def destroy
     @conversion = current_user.currency_conversions.find(params[:id])
     @conversion.destroy
-    redirect_to currency_converter_path, notice: 'Conversion deleted successfully.'
+    redirect_to currency_converter_path, notice: "Conversion deleted successfully."
   end
 
   def clear_history
     current_user.currency_conversions.destroy_all
-    redirect_to currency_converter_path, notice: 'All conversion history cleared successfully.'
+    redirect_to currency_converter_path, notice: "All conversion history cleared successfully."
   end
 end

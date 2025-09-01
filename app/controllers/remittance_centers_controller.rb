@@ -2,6 +2,8 @@ class RemittanceCentersController < ApplicationController
   before_action :authenticate_user!
   before_action :set_google_service, only: [ :create, :refresh ]
 
+  layout "template"
+
   def index
     @remittance_centers = current_user.remittance_centers
   end

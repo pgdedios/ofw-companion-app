@@ -42,8 +42,10 @@ class PackageWebhookService
     end
     description = latest_event["description"]
 
-    # Update only if something changed
-    if @package.full_payload != normalized_payload
+    # Update only if something changed (including sync_time and sync_status), use below:
+    # if @package.full_payload != normalized_payload
+    # update only if the only changes are the latest event, use below:
+    if @package.latest_event_raw != latest_event
       @package.update(
         tracking_events: events_history,
         status: stage || @package.status,
@@ -76,7 +78,7 @@ class PackageWebhookService
     end
 
     if user.contact_number.present?
-      message = "Update on your package #{@package.tracking_number}:\n#{@package.status} at #{@package.last_location}.\nThank you for using OFW Companion"
+      message = "Update on your package #{@package.tracking_number}:\n#{@package.status}#{@package.last_location.present? ? " at #{@package.last_location}" : ""}.\nThank you for using OFW Companion"
       sms_service = IprogSmsService.new(api_token: ENV["IPROG_API_TOKEN"])
       sms_service.send_sms(number: user.contact_number, message: message)
     end

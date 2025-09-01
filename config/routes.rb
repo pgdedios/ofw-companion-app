@@ -27,7 +27,7 @@ Rails.application.routes.draw do
       end
     end
 
-    # Currency converter routes
+     # Currency converter routes
     get "currency_converter", to: "currency_converter#index"
     post "currency_converter", to: "currency_converter#convert"
     delete "currency_converter/conversions/:id", to: "currency_converter#destroy", as: :delete_currency_conversion

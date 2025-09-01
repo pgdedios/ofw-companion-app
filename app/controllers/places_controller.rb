@@ -3,6 +3,8 @@ class PlacesController < ApplicationController
   before_action :set_search_params, only: [ :index ]
   before_action :set_google_service, only: [ :index ]
 
+  layout "template"
+
   def index
     @places = fetch_places
   end

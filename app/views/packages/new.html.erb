@@ -1,7 +1,3 @@
-<div>
-  <%= render "layouts/sidebar" %>
-</div>
-
 <!-- Main Content -->
 <div class="flex-1 p-4 sm:p-6 lg:p-10 lg:ml-64 min-h-dvh bg-gray-50">
   <h1 class="text-xl sm:text-2xl font-bold mb-6">Track New Package</h1>
@@ -113,7 +109,11 @@
           </div>
 
           <!-- Modal footer -->
-          <div class="flex justify-end gap-2 px-4 py-2 border-t">
+          <div class="flex justify-end gap-2 px-4 py-2 border-t items-center">            
+            <!-- Package Name Input -->
+            <%= text_field_tag :package_name, nil, placeholder: "Package Name", maxlength: 30, class: "border rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" %>
+
+            <!-- Add Package Button -->
             <%= f.submit "✚ Add Package", class: "bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition" %>
           </div>
         <% end %>

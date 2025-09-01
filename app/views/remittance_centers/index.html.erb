@@ -1,14 +1,8 @@
-<!-- Sidebar -->
-<div>
-  <%= render "layouts/sidebar" %>
-</div>
-
 <!-- Main Content -->
 <div class="flex-1 p-6 md:p-10 lg:ml-64 min-h-dvh space-y-6 bg-gray-50">
   <div class="flex flex-col md:flex-row gap-4 sm:justify-between items-start">
     <!-- Remittance Center Header -->
     <%= render 'shared/page_header', title: 'Saved Remittance Centers', subtitle: nil %>
-
 
     <%= button_to "Refresh All", refresh_remittance_centers_path, method: :patch, data: { turbo: false }, class: "inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 sm:text-sm text-xs shadow" %>
 
