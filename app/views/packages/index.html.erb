@@ -14,26 +14,57 @@
     <% end %>
   </div>
 
+  <!-- Ransack form -->
+  <%= search_form_for @q, url: packages_path, method: :get,
+      class: "flex flex-col sm:flex-row sm:items-center gap-2 mb-4" do |f| %>
+
+  <!-- Name or Tracking autocomplete -->
+    <%= f.search_field :package_name_or_tracking_number_cont, 
+          list: "package_names",
+          placeholder: "Search by name or tracking",
+          class: "border rounded px-2 py-1 text-sm w-full sm:w-auto",
+          value: params.dig(:q, :package_name_or_tracking_number_cont) %>
+    <datalist id="package_names">
+      <% current_user.packages.pluck(:package_name).uniq.each do |name| %>
+        <option value="<%= name %>"></option>
+      <% end %>
+    </datalist>
+
+    <!-- Status filter -->
+    <%= f.select :status_eq,
+          options_for_select(Package.distinct.pluck(:status).compact.sort, params.dig(:q, :status_eq)),
+          { include_blank: "All Statuses" },
+          class: "border rounded px-2 py-1 text-sm w-full sm:w-auto" %>
+
+    <div class="flex flex-row gap-2 w-full sm:w-auto">
+      <%= f.submit "Search", class: "bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm flex-1 sm:flex-none" %>
+      <%= link_to "Clear", packages_path, class: "bg-gray-300 text-gray-800 px-3 py-1 rounded hover:bg-gray-400 text-sm flex-1 sm:flex-none" %>
+    </div>
+  <% end %>
+
   <!-- body -->
   <% if @packages.present? %>
     <div class="overflow-x-auto rounded-lg border border-gray-200">      
     <table class="w-full text-sm md:text-xs lg:text-sm table-fixed">
-      <thead class="bg-gray-100">
+      <thead class="bg-gray-200">
         <tr>
           <!-- Name: always visible -->
-          <th class="px-4 py-2 text-center font-medium text-gray-900 w-1/4 md:w-1/6">Name</th>
+          <th class="font-semibold px-4 py-2 text-center font-medium text-gray-900 w-1/6 md:w-1/6">Name</th>
 
           <!-- Tracking: visible from md -->
-          <th class="px-4 py-2 text-center font-medium text-gray-900 hidden md:table-cell w-1/6">Tracking</th>
+          <th class="font-semibold px-4 py-2 text-center font-medium text-gray-900 hidden md:table-cell w-1/6">Tracking</th>
           
           <!-- Courier: visible from md -->
-          <th class="px-4 py-2 text-center font-medium text-gray-900 hidden md:table-cell w-1/6">Courier</th>
+          <th class="font-semibold px-4 py-2 text-center font-medium text-gray-900 hidden md:table-cell w-1/6">Courier</th>
           
           <!-- Status: always visible -->
-          <th class="px-4 py-2 text-center font-medium text-gray-900 w-1/4 md:w-1/6">Status</th>
+          <th class="font-semibold px-4 py-2 text-center font-medium text-gray-900 w-1/6 md:w-1/6">Status</th>
+
+          <!-- Courier: visible from md -->
+          <th class="font-semibold px-4 py-2 text-center font-medium text-gray-900 hidden md:table-cell w-1/6">Location</th>
 
           <!-- Description: visible from md -->
-          <th class="px-4 py-2 text-center font-medium text-gray-900 hidden md:table-cell w-1/3">Description</th>
+          <th class="font-semibold px-4 py-2 text-center font-medium text-gray-900 hidden md:table-cell w-2/6">Description</th>
         </tr>
       </thead>
 
@@ -42,40 +73,46 @@
           <% latest_event = pkg.latest_event_raw || {} %>
           <% description = latest_event["description"] || "Not Specified" %>
           <% current_status =
+                pkg.status.presence ||
                 latest_event["stage"].presence ||
-                latest_event["sub_status"].to_s.split("_").first.presence ||
-                pkg.status.presence || "Unknown" %>
+                latest_event["sub_status"].to_s.split("_").first.presence || "Unknown" %>
           <% current_status = current_status.gsub(/([a-z])([A-Z])/, '\1 \2').titleize %>
 
           <tr class="hover:bg-gray-50 cursor-pointer" onclick="window.location='<%= package_path(pkg) %>'">
             <!-- Name (truncate 30) -->
-            <td class="px-4 py-3 font-medium text-gray-900 text-center truncate text-xs sm:text-sm">
+            <td class="px-4 py-3 font-medium text-gray-600 text-center truncate text-xs sm:text-sm">
               <%= truncate(pkg.package_name, length: 30, omission: "...") %>
             </td>
 
             <!-- Tracking -->
-            <td class="px-4 py-3 font-medium text-gray-900 text-center truncate text-xs sm:text-sm hidden md:table-cell">
+            <td class="px-4 py-3 font-medium text-gray-600 text-center truncate text-xs sm:text-sm hidden md:table-cell">
               <%= pkg.tracking_number %>
             </td>
 
             <!-- Courier -->
-            <td class="px-4 py-3 font-medium text-gray-900 text-center truncate text-xs sm:text-sm hidden md:table-cell">
+            <td class="px-4 py-3 font-medium text-gray-600 text-center truncate text-xs sm:text-sm hidden md:table-cell">
               <%= pkg.courier_name %>
             </td>
 
             <!-- Status -->
-            <td class="px-4 py-3 font-medium text-gray-900 text-center text-xs sm:text-sm">
+            <td class="px-4 py-3 font-medium text-gray-600 text-center text-xs sm:text-sm">
               <%= current_status %>
             </td>
 
+            <!-- Courier -->
+            <td class="px-4 py-3 font-medium text-gray-600 text-center truncate text-xs sm:text-sm hidden md:table-cell">
+              <%= pkg.last_location %>
+            </td>
+
             <!-- Description (truncate 50) -->
-            <td class="px-4 py-3 font-medium text-gray-900 text-center truncate text-xs sm:text-sm hidden md:table-cell">
+            <td class="px-4 py-3 font-medium text-gray-600 text-center truncate text-xs sm:text-sm hidden md:table-cell">
               <%= truncate(description, length: 50, omission: "...") %>
             </td>
           </tr>
         <% end %>
       </tbody>
-    </table>   
+    </table>
+    <%= paginate @packages %>
   </div>
   <% else %>
     <div class="flex flex-col gap-3 items-center justify-center content_center min-h-dvh">

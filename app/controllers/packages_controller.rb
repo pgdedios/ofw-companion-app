@@ -7,7 +7,8 @@ class PackagesController < ApplicationController
   layout "template"
 
   def index
-    @packages = current_user.packages.order(created_at: :desc)
+    @q = current_user.packages.ransack(params[:q])
+    @packages = @q.result(distinct: true).order(created_at: :desc).page(params[:page]).per(10)
   end
 
   def new
@@ -22,7 +23,7 @@ class PackagesController < ApplicationController
       end
   end
 
-  def show;  end
+  def show; end
 
   def create
     @package = current_user.packages.new(
