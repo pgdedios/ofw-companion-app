@@ -63,9 +63,18 @@ gem "tailwindcss-rails", "~> 4.3"
 # Authentication & Authorization
 gem "devise", "~> 4.9"
 
+# Pagination
+gem "kaminari", "~> 1.2", ">= 1.2.2"
+
+# Search
+gem "ransack", "~> 4.3"
+
 group :development, :test do
   # Testing
   gem "rspec-rails", "~> 8.0.0"
+
+  # Data Factories for Testing
+  gem "factory_bot_rails"
 
   # Environment & Configuration
   gem "dotenv-rails"
@@ -73,6 +82,3 @@ group :development, :test do
   # Code Quality
   gem "rubocop", require: false
 end
-
-gem "kaminari", "~> 1.2", ">= 1.2.2"
-gem "ransack", "~> 4.3"
