@@ -10,7 +10,7 @@ class DashboardController < ApplicationController
     @currency_list = currency_list
   end
 
- 
+
   def convert_currency
     begin
       from_currency = params[:from_currency]
@@ -33,28 +33,27 @@ class DashboardController < ApplicationController
 
       if rate_data && rate_data["data"] && rate_data["data"]["mid"]
         rate = rate_data["data"]["mid"].round(4)
-        
-        render json: { 
-          success: true, 
+
+        render json: {
+          success: true,
           rate: rate,
           from_currency: from_currency,
           to_currency: to_currency,
           timestamp: Time.current
         }
       else
-        render json: { 
-          success: false, 
-          error: "Unable to fetch exchange rate. Please try again later." 
+        render json: {
+          success: false,
+          error: "Unable to fetch exchange rate. Please try again later."
         }
       end
 
     rescue StandardError => e
       Rails.logger.error "Currency conversion error: #{e.message}"
-      render json: { 
-        success: false, 
-        error: "Conversion failed. Please try again." 
+      render json: {
+        success: false,
+        error: "Conversion failed. Please try again."
       }
     end
   end
-
 end
