@@ -25,3 +25,5 @@
   - Google Maps API (nearest remittance centers)  
   - HexaRate Currency Exchange Rate API (currency conversion)  
   - 17Track API (package tracking)  
+  - Rails Native UserMailer (email notifications)
+  - PhilSMS API (sms notifications)
