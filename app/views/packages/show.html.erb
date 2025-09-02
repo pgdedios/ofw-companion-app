@@ -46,7 +46,13 @@
               <p><strong>Tracking Number:</strong> <%= @package.tracking_number %></p>
               <p><strong>Courier:</strong> <%= @package.courier_name.presence || "N/A" %></p>
               <p><strong>Courier Code:</strong> <%= @package.carrier_code.presence || "N/A" %></p>
-              <p><strong>Status:</strong> <%= stage_value.gsub(/([a-z])([A-Z])/, '\1 \2').titleize %></p>
+              <p><strong>Status:</strong>
+                <% if @package.status.present? %>
+                  <%= @package.status.gsub(/([a-z])([A-Z])/, '\1 \2').titleize %>
+                <% else %>
+                  <%= stage_value.gsub(/([a-z])([A-Z])/, '\1 \2').titleize %>
+                <% end %>
+              </p>
               <p><strong>Pick-up Date:</strong> <%= pickup_date ? Time.use_zone(current_user.time_zone) { pickup_date.in_time_zone.strftime("%b %d, %Y %I:%M %p") } : "Not Specified" %>
               <p><strong>Days In Transit:</strong> <%= time_metrics["days_of_transit"].presence || time_metrics["days_of_transit_done"] %></p>
               <p><strong>Last Location:</strong> <%= location_value %></p>

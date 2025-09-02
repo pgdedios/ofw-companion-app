@@ -20,7 +20,6 @@ class PackageWebhookService
         []
       end
 
-    # Always take the first element (since we store as array of hashes)
     # Pick the payload that has at least one event with a "stage"
     first_payload = normalized_payload.find do |p|
       events = p.dig("track_info", "tracking", "providers", 0, "events") || []
@@ -36,10 +35,9 @@ class PackageWebhookService
             latest_event["sub_status"].to_s.split("_").first
                           .gsub(/([a-z])([A-Z])/, '\1 \2')
                           .titleize
-    location = latest_event["location"] || begin
-      addr = latest_event["address"]
-      [ addr["city"], addr["state"] ].compact.join(", ") if addr
-    end
+    addr = latest_event["address"]
+    address_string = [ addr["city"], addr["state"], addr["country"] ].compact.join(", ").presence if addr
+    location = latest_event["location"].presence || address_string || "Unknown"
     description = latest_event["description"]
 
     # Update only if something changed (including sync_time and sync_status), use below:
@@ -72,13 +70,31 @@ class PackageWebhookService
     return unless user
 
     if user.email.present?
-      # Pass package and safely read last_update in mailer
       @last_update_time = @package.last_update
       UserMailer.status_update(user, @package).deliver_now
     end
 
     if user.contact_number.present?
+      #   # SMS Cloud API provider
+      #   message = "Update on your package #{@package.tracking_number}:\n#{@package.status}#{@package.last_location.present? ? " at #{@package.last_location}" : ""}.\nThank you for using OFW Companion"
+      #   sms_service = CloudSmsService.new(
+      #   app_key: ENV["CLOUDSMS_APP_KEY"],
+      #   app_secret: ENV["CLOUDSMS_APP_SECRET"]
+      # )
+
+      #   sms_service.send_sms(number: user.contact_number, message: message)
+
+      # # PHILSMS API provider
+      # message = "Update on your package #{@package.tracking_number}:\n#{@package.status}#{@package.last_location.present? ? " at #{@package.last_location}" : ""}.\nThank you for using OFW Companion"
+
+      # sms_service = PhilsmsService.new
+      # result = sms_service.send_sms(recipient: user.contact_number, message: message)
+
+      # Rails.logger.info("PhilSMS Response: #{result}")
+
+      # IPROG SMS API Provider
       message = "Update on your package #{@package.tracking_number}:\n#{@package.status}#{@package.last_location.present? ? " at #{@package.last_location}" : ""}.\nThank you for using OFW Companion"
+      # message = "Update on your package #{@package.tracking_number}:\n#{@package.status} at #{@package.last_location}.\nThank you for using OFW Companion"
       sms_service = IprogSmsService.new(api_token: ENV["IPROG_API_TOKEN"])
       sms_service.send_sms(number: user.contact_number, message: message)
     end

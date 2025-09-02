@@ -8,4 +8,29 @@ class Package < ApplicationRecord
                           message: "already exists for this user with this courier" }
 
   validates :package_name, length: { maximum: 30 }
+
+  # scoping for in_transit_packages
+  scope :in_transit, -> {
+    where.not("latest_event_raw ->> 'stage' = ? AND latest_event_raw ->> 'sub_status' = ?", "Delivered", "Delivered_Other")
+  }
+
+  # ransack
+  def self.ransackable_attributes(auth_object = nil)
+    %w[
+      package_name
+      tracking_number
+      courier_name
+      status
+      latest_stage
+      latest_substatus
+      latest_description
+      created_at
+      updated_at
+    ]
+  end
+
+  # Allowlist associations
+  def self.ransackable_associations(auth_object = nil)
+    %w[user]  # only allow searching by user if needed
+  end
 end

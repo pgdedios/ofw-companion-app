@@ -15,7 +15,7 @@ class User < ApplicationRecord
   # history table for currency converter
   has_many :currency_conversions, dependent: :destroy
 
- def full_name
+  def full_name
     "#{first_name} #{last_name}".strip
   end
 end

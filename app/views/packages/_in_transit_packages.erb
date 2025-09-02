@@ -1,26 +1,22 @@
 <div class="flex flex-col h-full bg-gray-100 rounded-lg shadow">
   <!-- Scrollable tracker section -->
   <div class="flex-1 overflow-y-auto">
-    <% in_transit = @packages.select do |pkg| 
-        latest_event = pkg.latest_event_raw || {}
-        !(latest_event["stage"] == "Delivered" && latest_event["sub_status"] == "Delivered_Other")
-      end %>
-
-    <% if in_transit.present? %>
+    <% if @in_transit_packages.present? %>
       <div class="overflow-x-auto">
         <table class="w-full text-xs sm:text-sm md:text-sm lg:text-base table-fixed">
           <thead class="bg-gray-200">
             <tr>
-              <th class="px-4 py-2 text-center font-medium text-gray-900 w-1/5 sm:w-1/6">Name</th>
-              <th class="px-4 py-2 text-center font-medium text-gray-900 hidden md:table-cell w-1/6">Tracking</th>
-              <th class="px-2 sm:px-4 py-2 text-center font-medium text-gray-900 hidden md:table-cell w-1/6">Courier</th>
-              <th class="px-2 sm:px-4 py-2 text-center font-medium text-gray-900 w-1/5 sm:w-1/6">Status</th>
-              <th class="px-2 sm:px-4 py-2 text-center font-medium text-gray-900 hidden md:table-cell w-2/5">Description</th>
+              <th class="font-semibold px-4 py-2 text-center font-medium text-gray-900 w-1/6 sm:w-1/6">Name</th>
+              <th class="font-semibold px-4 py-2 text-center font-medium text-gray-900 hidden md:table-cell w-1/6">Tracking</th>
+              <th class="font-semibold px-2 sm:px-4 py-2 text-center font-medium text-gray-900 hidden md:table-cell w-1/6">Courier</th>
+              <th class="font-semibold px-2 sm:px-4 py-2 text-center font-medium text-gray-900 w-1/6 sm:w-1/6">Status</th>
+              <th class="font-semibold px-2 sm:px-4 py-2 text-center font-medium text-gray-900 hidden md:table-cell w-1/6">Location</th>
+              <th class="font-semibold px-2 sm:px-4 py-2 text-center font-medium text-gray-900 hidden md:table-cell w-2/6">Description</th>
             </tr>
           </thead>
 
           <tbody class="bg-white divide-y divide-gray-200">
-            <% in_transit.each do |pkg| %>
+            <% @in_transit_packages.each do |pkg| %>
               <% latest_event = pkg.latest_event_raw || {} %>
               <% description = latest_event["description"] || "Not Specified" %>
               <% current_status =
@@ -33,11 +29,12 @@
               <% last_update_formatted = last_update ? Time.zone.parse(last_update.to_s).strftime("%b %d, %Y %I:%M %p") : "N/A" %>
 
               <tr class="hover:bg-gray-50 cursor-pointer" onclick="window.location='<%= package_path(pkg) %>'">
-                <td class="px-4 py-3 font-medium text-gray-900 text-center text-xs sm:text-sm truncate"><%= pkg.package_name %></td>
-                <td class="px-4 py-3 font-medium text-gray-900 text-center text-xs sm:text-sm hidden md:table-cell truncate"><%= pkg.tracking_number %></td>
-                <td class="px-4 py-3 font-medium text-gray-900 text-center text-xs sm:text-sm hidden md:table-cell truncate"><%= pkg.courier_name %></td>
-                <td class="px-4 py-3 font-medium text-gray-900 text-center text-xs sm:text-sm truncate"><%= current_status %></td>
-                <td class="px-4 py-3 font-medium text-gray-900 text-center text-xs sm:text-sm hidden md:table-cell truncate"><%= description %></td>
+                <td class="px-4 py-3 font-medium text-gray-600 text-center text-xs sm:text-sm truncate"><%= pkg.package_name %></td>
+                <td class="px-4 py-3 font-medium text-gray-600 text-center text-xs sm:text-sm hidden md:table-cell truncate"><%= pkg.tracking_number %></td>
+                <td class="px-4 py-3 font-medium text-gray-600 text-center text-xs sm:text-sm hidden md:table-cell truncate"><%= pkg.courier_name %></td>
+                <td class="px-4 py-3 font-medium text-gray-600 text-center text-xs sm:text-sm truncate"><%= current_status %></td>
+                <td class="px-4 py-3 font-medium text-gray-600 text-center text-xs sm:text-sm hidden md:table-cell truncate"><%= pkg.last_location %></td>
+                <td class="px-4 py-3 font-medium text-gray-600 text-center text-xs sm:text-sm hidden md:table-cell truncate"><%= description %></td>
               </tr>
             <% end %>
           </tbody>
@@ -57,8 +54,9 @@
           You haven't saved any packages yet.
         </p>
         <%= link_to "✚ Track New Package", new_package_path,
-              class: "bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-700 text-sm sm:text-base" %>
+              class: "bg-gray-600 text-white px-3 py-2 rounded hover:bg-gray-700 text-sm sm:text-base" %>
       </div>
     <% end %>
   </div>
 </div>
+<%= paginate @in_transit_packages %>

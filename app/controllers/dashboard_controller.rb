@@ -7,6 +7,7 @@ class DashboardController < ApplicationController
   def index
     @remittance_centers = current_user.remittance_centers.order(created_at: :desc).limit(3)
     @packages = current_user.packages.order(created_at: :desc)
+    @in_transit_packages = @packages.in_transit.page(params[:page]).per(5)
     @currency_list = currency_list
   end
 
