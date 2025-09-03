@@ -1,20 +1,20 @@
-<div class="bg-white rounded-2xl shadow-md w-full p-4 min-h-[12rem] flex flex-col justify-center gap-4">
+<div class="flex flex-col w-full h-full justify-center gap-4">
   <% if @weather.blank? || @weather["location"].blank? || @weather["current"].blank? %>
     <p class="text-gray-500 text-center w-full">Weather data not available</p>
   <% else %>
-    <!-- Top: Location + Time (full width, centered) -->
+    <!-- Top: Location + Time -->
     <div class="w-full text-center sm:text-left">
-      <h3 class="font-semibold text-gray-800 text-lg sm:text-xl ">
+      <h3 class="font-semibold text-gray-800 text-lg sm:text-xl">
         <%= @weather["location"]["region"] %>, <%= @weather["location"]["country"] %>
       </h3>
-      <p class="text-gray-600 font-medium mt-0.5 text-sm sm:text-base md:text-lg">
+      <p class="text-gray-600 font-medium mt-0.5 text-sm sm:text-base">
         <% weather_time = @weather["location"]["localtime"] %>
         <%= Time.parse(weather_time).strftime("%-I:%M %p | %a | %d-%b") %>
       </p>
     </div>
 
     <!-- Bottom: Icon left / Details right -->
-    <div class="flex flex-col sm:flex-row w-full items-center sm:items-start justify-center gap-4">
+    <div class="flex flex-col sm:flex-row w-full items-center justify-center gap-4 flex-1">
       <!-- Weather Icon -->
       <div class="flex-shrink-0 flex justify-center sm:justify-end w-full sm:w-auto">
         <img src="https:<%= @weather["current"]["condition"]["icon"] %>" 
