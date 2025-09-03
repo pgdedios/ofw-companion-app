@@ -14,18 +14,18 @@
         </div>
 
         <!-- World Clock + Weather -->
-        <div class="min-h-[12rem] p-6 border bg-white rounded-md shadow-sm flex flex-col sm:flex-row gap-4">
+        <div class="min-h-[10rem] p-6 border bg-white rounded-md shadow-sm flex flex-col sm:flex-row gap-4 h-full">
           <!-- Clock (compact) -->
-          <div class="w-full sm:w-2/5 flex items-center justify-center">
+          <div class="w-full sm:w-2/5 flex items-center justify-center h-full">
             <div class="w-full h-full flex flex-col justify-center">
               <%= render "home_clock" %>
             </div>
           </div>
 
           <!-- Weather (wider) -->
-          <div class="w-full sm:w-3/5 flex items-center justify-center">
+          <div class="w-full sm:w-3/5 flex items-center justify-center h-full">
             <div class="w-full h-full flex flex-col justify-center">
-              <%= render "current_weather" %>
+              <%= render "current_weather", fixed_height: "h-full p-0" %>
             </div>
           </div>
         </div>
