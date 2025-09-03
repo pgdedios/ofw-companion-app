@@ -9,6 +9,18 @@ class DashboardController < ApplicationController
     @packages = current_user.packages.order(created_at: :desc)
     @in_transit_packages = @packages.in_transit.page(params[:page]).per(5)
     @currency_list = currency_list
+
+    # for weather api
+    if @remittance_centers.any?
+      center = @remittance_centers.first
+      lat = center.latitude
+      lon = center.longitude
+
+      service = WeatherApiService.new(ENV["WEATHER_API_KEY"])
+      @weather = service.current_weather(lat, lon)
+    else
+      @weather = "No remittance center available"
+    end
   end
 
 
