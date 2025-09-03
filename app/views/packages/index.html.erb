@@ -1,6 +1,5 @@
 <!-- Main Content -->
 <div class="flex-1 p-6 md:p-10 mb-6 lg:ml-64 min-h-dvh space-y-6 bg-gray-50">
-
   <!-- Header -->
   <div>
     <% if @packages.present? %>
@@ -14,36 +13,35 @@
     <% end %>
   </div>
 
-  <!-- Ransack form -->
-  <%= search_form_for @q, url: packages_path, method: :get,
-      class: "flex flex-col sm:flex-row sm:items-center gap-2 mb-4" do |f| %>
-
-  <!-- Name or Tracking autocomplete -->
-    <%= f.search_field :package_name_or_tracking_number_cont, 
-          list: "package_names",
-          placeholder: "Search by name or tracking",
-          class: "border rounded px-2 py-1 text-sm w-full sm:w-auto",
-          value: params.dig(:q, :package_name_or_tracking_number_cont) %>
-    <datalist id="package_names">
-      <% current_user.packages.pluck(:package_name).uniq.each do |name| %>
-        <option value="<%= name %>"></option>
-      <% end %>
-    </datalist>
-
-    <!-- Status filter -->
-    <%= f.select :status_eq,
-          options_for_select(Package.distinct.pluck(:status).compact.sort, params.dig(:q, :status_eq)),
-          { include_blank: "All Statuses" },
-          class: "border rounded px-2 py-1 text-sm w-full sm:w-auto" %>
-
-    <div class="flex flex-row gap-2 w-full sm:w-auto">
-      <%= f.submit "Search", class: "bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm flex-1 sm:flex-none" %>
-      <%= link_to "Clear", packages_path, class: "bg-gray-300 text-gray-800 px-3 py-1 rounded hover:bg-gray-400 text-sm flex-1 sm:flex-none" %>
-    </div>
-  <% end %>
-
   <!-- body -->
   <% if @packages.present? %>
+    <!-- Ransack form -->
+    <%= search_form_for @q, url: packages_path, method: :get,
+        class: "flex flex-col sm:flex-row sm:items-center gap-2 mb-4" do |f| %>
+
+    <!-- Name or Tracking autocomplete -->
+      <%= f.search_field :package_name_or_tracking_number_or_courier_name_cont, 
+            list: "package_names",
+            placeholder: "name, tracking, courier name",
+            class: "border rounded px-2 py-1 text-sm w-full sm:w-auto",
+            value: params.dig(:q, :package_name_or_tracking_number_or_courier_name_cont) %>
+      <datalist id="package_names">
+        <% current_user.packages.pluck(:package_name).uniq.each do |name| %>
+          <option value="<%= name %>"></option>
+        <% end %>
+      </datalist>
+
+      <!-- Status filter -->
+      <%= f.select :status_eq,
+            options_for_select(Package.distinct.pluck(:status).compact.sort, params.dig(:q, :status_eq)),
+            { include_blank: "All Statuses" },
+            class: "border rounded px-2 py-1 text-sm w-full sm:w-auto" %>
+
+      <div class="flex flex-row gap-2 w-full sm:w-auto">
+        <%= f.submit "Search", class: "bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm flex-1 sm:flex-none" %>
+        <%= link_to "Clear", packages_path, class: "bg-gray-300 text-gray-800 px-3 py-1 rounded hover:bg-gray-400 text-sm flex-1 sm:flex-none" %>
+      </div>
+    <% end %>
     <div class="overflow-x-auto rounded-lg border border-gray-200">      
     <table class="w-full text-sm md:text-xs lg:text-sm table-fixed">
       <thead class="bg-gray-200">
@@ -112,7 +110,6 @@
         <% end %>
       </tbody>
     </table>
-    <%= paginate @packages %>
   </div>
   <% else %>
     <div class="flex flex-col gap-3 items-center justify-center content_center min-h-dvh">
@@ -126,5 +123,7 @@
       </div>
     </div>
   <% end %>
+  <div class="my-4">
+    <%= paginate @packages %>
+  </div>
 </div>
-

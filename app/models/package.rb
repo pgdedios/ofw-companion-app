@@ -1,5 +1,6 @@
 class Package < ApplicationRecord
   belongs_to :user
+  before_validation :set_default_name
 
   validates :tracking_number, presence: true
   validates :courier_name, presence: true
@@ -32,5 +33,13 @@ class Package < ApplicationRecord
   # Allowlist associations
   def self.ransackable_associations(auth_object = nil)
     %w[user]  # only allow searching by user if needed
+  end
+
+  private
+
+  def set_default_name
+    if package_name.blank? && courier_name.present?
+      self.package_name = "#{courier_name} package"
+    end
   end
 end
