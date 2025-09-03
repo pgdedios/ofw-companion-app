@@ -3,6 +3,7 @@ class PackagesController < ApplicationController
   before_action :authenticate_user!, except: [ :webhook_update ]
   before_action :set_package, only: [ :show, :destroy ]
   before_action :set_carriers, only: [ :new, :create ]
+  rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 
   layout "template"
 
@@ -12,6 +13,7 @@ class PackagesController < ApplicationController
   end
 
   def new
+    @package = Package.new
     tn = params[:tracking_number]
     carrier = params[:carrier]
 
@@ -41,7 +43,7 @@ class PackagesController < ApplicationController
       tracking_events: safe_parse_events(params[:tracking_events]),
       latest_event_raw: safe_parse_events(params[:latest_event_raw]),
       full_payload: safe_parse_events(params[:full_payload]),
-      package_name: params[:package_name].presence || params[:tracking_number]
+      package_name: params[:package_name]
     )
 
     if @package.save
@@ -101,6 +103,10 @@ class PackagesController < ApplicationController
       latest_event_raw: [],
       full_payload: []
     )
+  end
+
+  def record_not_found
+    redirect_to packages_path, alert: "Record does not exist."
   end
 
   def safe_parse_events(json_string)
