@@ -4,18 +4,20 @@
       <hr class="border-gray-300">
       <li class="flex flex-col justify-between p-6 bg-white">
         <div>
-          <strong class="text-base text-gray-800"><%= center.name %></strong><br>
-          <span class="text-sm text-gray-600"><%= center.address %></span><br>
+          <strong class="text-base lg:text-base text-gray-800"><%= center.name %></strong><br>
+          <span class="text-xs lg:text-sm text-gray-600"><%= center.address %></span><br>
         </div>
 
         <div class="flex mt-4 gap-6">
           <% if center.latitude.present? && center.longitude.present? %>
-            <%= link_to "View on Google Maps", 
-                        "https://www.google.com/maps/search/?api=1&query=#{center.latitude},#{center.longitude}", 
-                        target: "_blank", 
-                        class: "inline-block text-gray-600 rounded hover:text-blue-600 text-sm" %>
+            <%= link_to "https://www.google.com/maps/search/?api=1&query=#{center.latitude},#{center.longitude}", target: "_blank", class: "inline-flex items-center py-2 gap-2 text-blue-600 hover:text-blue-800 lg:text-sm text-xs" do %>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="lg:h-5 lg:w-5 h-4 w-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+              </svg>
+              View on Google Maps
+            <% end %>
           <% else %>
-            <span class="text-yellow-600 text-sm">Coordinates not available</span>
+            <span class="text-yellow-600 hover:text-yellow-800 md:text-sm text-xs">N/A</span>
           <% end %>
         </div>
       </li>

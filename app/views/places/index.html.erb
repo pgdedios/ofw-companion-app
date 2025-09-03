@@ -1,66 +1,64 @@
 <!-- Main Content -->
 <div class="flex-1 p-6 md:p-10 mb-6 lg:ml-64 min-h-dvh space-y-6 bg-gray-50">
 
-  <!-- Header -->
-  <%= render 'shared/page_header', 
-    title: 'Nearby Remittance Centers', 
-    subtitle: 'Search for nearby remittance centers' %>
+  <div class="flex flex-row gap-4 justify-between items-center">
+    <!-- Header -->
+    <%= render 'shared/page_header', 
+      title: 'Nearby Remittance Centers', 
+      subtitle: 'Search for nearby remittance centers' %>
 
-  <!-- Search Form -->
-  <div data-controller="location" class="bg-white p-6 rounded-md shadow-sm">
-    <%= form_with url: places_path, method: :get, local: false, html: { data: { location_target: "form" }, class: "space-y-4" } do %>
-      <div class="flex flex-col sm:flex-row items-center gap-4">
-        <label for="radius" class="text-sm font-medium text-gray-700">Radius (meters):</label>
-        <%= number_field_tag :radius, params[:radius], min: 1000, max: 50000, data: { location_target: "radius" }, id: "radius", class: "w-full sm:w-40 px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+    <!-- Search Form -->
+    <div data-controller="location">
+      <%= form_with url: places_path, method: :get, local: false, html: { data: { location_target: "form" }, class: "space-y-4" } do %>
+        <div class="flex flex-col sm:flex-row items-center gap-4">
+          <div class="<%= @places.present? ? 'block' : 'hidden' %>">
+            <label for="radius" class="text-sm font-medium text-gray-700">Radius (Meters):</label>
+            <%= number_field_tag :radius, params[:radius], min: 1000, max: 50000, data: { location_target: "radius" }, id: "radius", class: "w-full sm:w-40 px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+          </div>
+          <%= hidden_field_tag :keyword, params[:keyword], data: { location_target: "keyword" } %>
 
-        <%= hidden_field_tag :keyword, params[:keyword], data: { location_target: "keyword" } %>
-
-        <%= button_tag "Search Nearby", type: "button", data: { action: "location#search" }, class: "inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm shadow" %>
-      </div>
-    <% end %>
-  </div>
-
-  <!-- Results -->
-  <% if @places.present? %>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <% @places.each do |place| %>
-        <div class="bg-white p-6 rounded-md shadow hover:shadow-md transition">
-          <h2 class="text-lg font-semibold text-gray-800"><%= place[:name] %></h2>
-          <p class="text-sm text-gray-600"><strong>Address:</strong> <%= place[:address] %></p>
-          <p class="text-sm text-gray-600"><strong>Rating:</strong> <%= place[:rating] %> (<%= place[:user_ratings_total] %> reviews)</p>
-          <p class="text-sm text-gray-600"><strong>Coordinates:</strong> <%= place[:latitude] %>, <%= place[:longitude] %></p>
-
-          <% if place[:saved] %>
-            <button disabled class="mt-4 w-full px-4 py-2 bg-gray-300 text-gray-700 rounded text-sm cursor-not-allowed">
-              Already Saved
-            </button>
-          <% else %>
-            <turbo-frame id="place_<%= place[:place_id] %>">
-              <%= form_with url: remittance_centers_path, method: :post do %>
-                <%= hidden_field_tag "place[place_id]", place[:place_id] %>
-                <%= submit_tag "Save this place", class: "w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm shadow" %>
-              <% end %>
-            </turbo-frame>
+          <%= button_tag type: "button", data: { action: "location#search" }, class: "inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 md:text-sm text-xs shadow" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="md:h-5 md:w-5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1110.5 3a7.5 7.5 0 016.15 13.65z" />
+            </svg>
+            Find
           <% end %>
         </div>
       <% end %>
     </div>
+  </div>
+
+  <!-- Results -->
+  <% if @places.present? %>
+    <div class="grid grid-cols-1 xl:grid-cols-3 md:grid-cols-2 gap-6">
+      <% @places.each do |place| %>
+        <div class="flex flex-col justify-between p-6 border bg-white rounded-lg shadow hover:shadow-md transition">
+          <div>
+            <h2 class="text-base xl:text-lg font-semibold text-gray-800 mb-2"><%= place[:name] %></h2>
+            <p class="text-xs lg:text-sm text-gray-600"><strong>Address:</strong> <%= place[:address] %></p>
+            <p class="text-xs lg:text-sm text-gray-600"><strong>Rating:</strong> <%= place[:rating] %> (<%= place[:user_ratings_total] %> reviews)</p>
+          </div>
+
+          <div>
+            <% if place[:saved] %>
+              <button disabled class="w-full mt-6 px-4 py-2 bg-gray-300 text-gray-700 rounded text-xs lg:text-sm cursor-not-allowed">
+                Already Saved
+              </button>
+            <% else %>
+              <turbo-frame id="place_<%= place[:place_id] %>">
+                <%= form_with url: remittance_centers_path, method: :post do %>
+                  <%= hidden_field_tag "place[place_id]", place[:place_id] %>
+                  <%= submit_tag "Save this place", class: "w-full mt-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs lg:text-sm shadow" %>
+                <% end %>
+              </turbo-frame>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <%# else %>
+<!--    <div class="text-center py-10 text-gray-500">-->
+      <%#= render "places/nil_search_result" %>
+<!--    </div>-->
   <% end %>
 </div>
-
-<!-- Script to disable saved button -->
-<script>
-  const savedPlaceId = "<%= @saved_place_id %>";
-  if (savedPlaceId) {
-    const form = document.querySelector(`form[data-place-id="${savedPlaceId}"]`);
-    if (form) {
-      const button = form.querySelector("input[type='submit']");
-      if (button) {
-        button.disabled = true;
-        button.value = "Already Saved";
-        button.classList.add("bg-gray-300", "text-gray-700", "cursor-not-allowed");
-        button.classList.remove("bg-blue-600", "hover:bg-blue-700");
-      }
-    }
-  }
-</script>
