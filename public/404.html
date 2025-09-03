@@ -7,31 +7,42 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100">
+  <body class="min-h-screen bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100">
+    <div
+      class="relative min-h-screen w-full bg-white flex flex-col items-center justify-center gap-10 px-8 py-12 lg:flex-row lg:items-center lg:justify-center lg:gap-20 lg:text-left overflow-hidden"
+    >
 
-  <div class="bg-white rounded-2xl px-16 py-14 shadow-2xl max-w-xl w-full text-center">
-      <!-- SVG Image -->
-      <div class="mb-6 animate-bounce">
-        <img src="/images/404-graphic.svg" alt="404" class="mx-auto w-40 h-40" />
+      <!-- SVG Image (larger flex proportion) -->
+      <img 
+        src="/images/404-graphic.svg" 
+        alt="404" 
+        class="relative z-10 h-64 w-64 md:h-80 md:w-80 lg:h-[28rem] lg:w-[28rem] xl:h-[30rem] xl:w-[30rem]" 
+      />
+
+      <!-- Text and button (smaller flex proportion) -->
+      <div class="relative z-10 flex-[0.7] max-w-lg">
+        <div class="mb-8 space-y-3">
+          <span
+            class="inline-block bg-blue-100 text-blue-800 font-semibold text-sm md:text-base lg:text-lg px-4 py-1 rounded-full shadow-sm"
+          >
+            ⚠️ 404 Error
+          </span>
+          <h1 class="text-xl md:text-2xl lg:text-3xl font-bold text-blue-900">
+            You're currently lost <span class="inline-block animate-spin">😵‍💫</span>
+          </h1>
+          <p class="text-gray-600 text-base md:text-lg lg:text-xl">
+            We couldn't find the page you were looking for.
+          </p>
+        </div>
+
+        <!-- Home Button -->
+        <a
+          href="/"
+          class="inline-block bg-blue-900 text-white px-6 py-3 md:px-8 md:py-4 rounded-full shadow-md text-sm md:text-base lg:text-lg hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
+        >
+          Go Home
+        </a>
       </div>
-
-      <!-- Text -->
-      <div class="mb-6 space-y-2">
-        <span class="inline-block bg-blue-100 text-blue-800 font-semibold text-sm px-4 py-1 rounded-full shadow-sm">
-          ⚠️ 404 Error
-        </span>
-        <h1 class="text-xl font-bold text-blue-900">You're currently lost 😵‍💫</h1>
-        <p class="text-gray-600">We couldn't find the page you were looking for.</p>
-      </div>
-
-      <!-- Home Button -->
-      <a
-        href="/"
-        class="inline-block bg-blue-900 text-white px-5 py-2.5 rounded-lg shadow-md hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
-      >
-        Go Home
-      </a>
     </div>
-
   </body>
 </html>
