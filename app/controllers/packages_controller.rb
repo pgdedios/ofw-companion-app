@@ -1,7 +1,7 @@
 class PackagesController < ApplicationController
   skip_before_action :verify_authenticity_token, only: [ :webhook_update ] # required for external webhook
   before_action :authenticate_user!, except: [ :webhook_update ]
-  before_action :set_package, only: [ :show, :destroy ]
+  before_action :set_package, except: [ :index, :new, :create ]
   before_action :set_carriers, only: [ :new, :create ]
   rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 
@@ -55,6 +55,17 @@ class PackagesController < ApplicationController
     end
   end
 
+  def edit; end
+
+  def update
+    if @package.update(package_params.slice(:package_name))
+      redirect_to package_path(@package), notice: "Package name updated"
+    else
+      flash.now[:alert] = "Failed to update package name."
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
   def destroy
     @package.destroy
     redirect_to packages_path, notice: "Package #{@package.tracking_number} deleted."
@@ -84,7 +95,7 @@ class PackagesController < ApplicationController
   end
 
   def package_params
-    params.permit(
+    params.require(:package).permit(
       :tracking_number,
       :courier_name,
       :carrier_code,

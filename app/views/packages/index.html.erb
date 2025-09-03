@@ -20,11 +20,11 @@
         class: "flex flex-col sm:flex-row sm:items-center gap-2 mb-4" do |f| %>
 
     <!-- Name or Tracking autocomplete -->
-      <%= f.search_field :package_name_or_tracking_number_cont, 
+      <%= f.search_field :package_name_or_tracking_number_or_courier_name_cont, 
             list: "package_names",
-            placeholder: "Search by name or tracking",
+            placeholder: "name, tracking, courier name",
             class: "border rounded px-2 py-1 text-sm w-full sm:w-auto",
-            value: params.dig(:q, :package_name_or_tracking_number_cont) %>
+            value: params.dig(:q, :package_name_or_tracking_number_or_courier_name_cont) %>
       <datalist id="package_names">
         <% current_user.packages.pluck(:package_name).uniq.each do |name| %>
           <option value="<%= name %>"></option>
@@ -110,7 +110,6 @@
         <% end %>
       </tbody>
     </table>
-    <%= paginate @packages %>
   </div>
   <% else %>
     <div class="flex flex-col gap-3 items-center justify-center content_center min-h-dvh">
@@ -124,5 +123,7 @@
       </div>
     </div>
   <% end %>
+  <div class="my-4">
+    <%= paginate @packages %>
+  </div>
 </div>
-
