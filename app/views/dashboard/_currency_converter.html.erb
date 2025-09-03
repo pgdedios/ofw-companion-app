@@ -1,44 +1,78 @@
 <div class="currency-converter-container">
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-    <!-- From Currency -->
-    <div>
-      <label class="block text-sm font-medium text-gray-700 mb-2">From</label>
-      <%= render "currency_dropdown", 
-          name: "from_currency", 
-          currency_list: currency_list, 
-          css_class: "from-currency-dropdown" %>
-    </div>
-
-    <!-- To Currency -->
-    <div>
-      <label class="block text-sm font-medium text-gray-700 mb-2">To</label>
-      <%= render "currency_dropdown", 
-          name: "to_currency", 
-          currency_list: currency_list, 
-          css_class: "to-currency-dropdown" %>
+  <!-- Conversion Result Display (Always Visible) -->
+  <div id="conversion-display-card" class="hidden">
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center mt-2">
+      <div class="text-xl font-semibold text-blue-800 mb-2" id="main-conversion-display"></div>
+      <div class="text-sm text-blue-600 mb-4" id="main-conversion-timestamp"></div>
+      <button id="edit-conversion-btn" 
+              class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200">
+        Edit Conversion
+      </button>
     </div>
   </div>
 
-  <!-- Convert Button -->
-  <div class="flex justify-center mb-4">
-    <button id="convert-btn" 
-            class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled>
-      <span class="convert-text">Convert</span>
-      <span class="loading-text hidden">Converting...</span>
+  <!-- Initial State (When no conversion exists) -->
+  <div id="initial-setup" class="text-center py-6">
+    <div class="text-gray-600 mb-4">Set up your currency conversion</div>
+    <button id="setup-conversion-btn" 
+            class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition duration-200">
+      Setup Currency Conversion
     </button>
   </div>
 
-  <!-- Conversion Result -->
-  <div id="conversion-result" class="hidden">
-    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
-      <div class="text-lg font-semibold text-blue-800" id="conversion-display"></div>
-      <div class="text-sm text-blue-600 mt-1" id="conversion-timestamp"></div>
+  <!-- Modal Overlay -->
+  <div id="conversion-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg p-6 w-full max-w-md max-h-[90dvh] overflow-y-auto">
+      <!-- Modal Header -->
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-lg font-semibold text-gray-800">Currency Conversion</h3>
+        <button id="close-modal-btn" class="text-gray-400 hover:text-gray-600 text-xl font-bold">
+          &times;
+        </button>
+      </div>
+
+      <!-- Modal Content -->
+      <div class="space-y-4">
+        <!-- From Currency -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">From</label>
+          <%= render "currency_dropdown", 
+              name: "from_currency", 
+              currency_list: currency_list, 
+              css_class: "from-currency-dropdown" %>
+        </div>
+
+        <!-- To Currency -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">To</label>
+          <%= render "currency_dropdown", 
+              name: "to_currency", 
+              currency_list: currency_list, 
+              css_class: "to-currency-dropdown" %>
+        </div>
+
+        <!-- Convert Button -->
+        <div class="flex justify-center pt-4">
+          <button id="convert-btn" 
+                  class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed w-full"
+                  disabled>
+            <span class="convert-text">Convert</span>
+            <span class="loading-text hidden">Converting...</span>
+          </button>
+        </div>
+
+        <!-- Modal Error Message -->
+        <div id="modal-conversion-error" class="hidden">
+          <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+            <div class="text-red-800" id="modal-error-message"></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Error Message -->
-  <div id="conversion-error" class="hidden">
+  <!-- Global Error Message (Outside Modal) -->
+  <div id="conversion-error" class="hidden mt-4">
     <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
       <div class="text-red-800" id="error-message"></div>
     </div>
@@ -49,17 +83,67 @@
 // Function to initialize the currency converter
 function initializeCurrencyConverter() {
   const convertBtn = document.getElementById('convert-btn');
-  const conversionResult = document.getElementById('conversion-result');
+  const conversionDisplayCard = document.getElementById('conversion-display-card');
+  const initialSetup = document.getElementById('initial-setup');
+  const conversionModal = document.getElementById('conversion-modal');
+  const mainConversionDisplay = document.getElementById('main-conversion-display');
+  const mainConversionTimestamp = document.getElementById('main-conversion-timestamp');
+  const editConversionBtn = document.getElementById('edit-conversion-btn');
+  const setupConversionBtn = document.getElementById('setup-conversion-btn');
+  const closeModalBtn = document.getElementById('close-modal-btn');
+  const modalConversionError = document.getElementById('modal-conversion-error');
+  const modalErrorMessage = document.getElementById('modal-error-message');
   const conversionError = document.getElementById('conversion-error');
-  const conversionDisplay = document.getElementById('conversion-display');
-  const conversionTimestamp = document.getElementById('conversion-timestamp');
   const errorMessage = document.getElementById('error-message');
   
   // Return early if elements don't exist
-  if (!convertBtn || !conversionResult) return;
+  if (!convertBtn) return;
   
   let fromCurrency = '';
   let toCurrency = '';
+
+  // Modal functions
+  function openModal() {
+    conversionModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    modalConversionError.classList.add('hidden');
+  }
+
+  function closeModal() {
+    conversionModal.classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  function showConversionResult(rate, timestamp) {
+    mainConversionDisplay.textContent = `1 ${fromCurrency} = ${rate} ${toCurrency}`;
+    mainConversionTimestamp.textContent = `Last updated: ${timestamp}`;
+    conversionDisplayCard.classList.remove('hidden');
+    initialSetup.classList.add('hidden');
+  }
+
+  function showInitialSetup() {
+    conversionDisplayCard.classList.add('hidden');
+    initialSetup.classList.remove('hidden');
+  }
+
+  // Event listeners
+  setupConversionBtn.addEventListener('click', openModal);
+  editConversionBtn.addEventListener('click', openModal);
+  closeModalBtn.addEventListener('click', closeModal);
+
+  // Close modal when clicking outside
+  conversionModal.addEventListener('click', function(e) {
+    if (e.target === conversionModal) {
+      closeModal();
+    }
+  });
+
+  // Close modal with Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && !conversionModal.classList.contains('hidden')) {
+      closeModal();
+    }
+  });
 
   // Load saved conversion on page load
   loadSavedConversion();
@@ -99,9 +183,6 @@ function initializeCurrencyConverter() {
       
       // Hide dropdown
       dropdown.querySelector('.options').classList.add('hidden');
-
-      // Auto-convert if we have a saved conversion and both currencies match
-      autoConvertIfSaved();
     }
   });
 
@@ -155,8 +236,8 @@ function initializeCurrencyConverter() {
     document.querySelector('.convert-text').classList.add('hidden');
     document.querySelector('.loading-text').classList.remove('hidden');
     
-    // Hide previous results
-    conversionResult.classList.add('hidden');
+    // Hide previous errors
+    modalConversionError.classList.add('hidden');
     conversionError.classList.add('hidden');
 
     // Make API call
@@ -174,23 +255,26 @@ function initializeCurrencyConverter() {
     .then(response => response.json())
     .then(data => {
       if (data.success) {
-        // Display result
-        conversionDisplay.textContent = `1 ${fromCurrency} = ${data.rate} ${toCurrency}`;
-        conversionTimestamp.textContent = `Last updated: ${new Date().toLocaleString()}`;
-        conversionResult.classList.remove('hidden');
+        const timestamp = new Date().toLocaleString();
+        
+        // Show result in main display
+        showConversionResult(data.rate, timestamp);
         
         // Save conversion to localStorage
         saveConversion(fromCurrency, toCurrency, data.rate);
+        
+        // Close modal
+        closeModal();
       } else {
-        // Display error
-        errorMessage.textContent = data.error || 'Conversion failed. Please try again.';
-        conversionError.classList.remove('hidden');
+        // Display error in modal
+        modalErrorMessage.textContent = data.error || 'Conversion failed. Please try again.';
+        modalConversionError.classList.remove('hidden');
       }
     })
     .catch(error => {
       console.error('Conversion error:', error);
-      errorMessage.textContent = 'Network error. Please check your connection and try again.';
-      conversionError.classList.remove('hidden');
+      modalErrorMessage.textContent = 'Network error. Please check your connection and try again.';
+      modalConversionError.classList.remove('hidden');
     })
     .finally(() => {
       // Reset button state
@@ -223,16 +307,54 @@ function initializeCurrencyConverter() {
         setDropdownValue('from_currency', data.from_currency);
         setDropdownValue('to_currency', data.to_currency);
         
-        // Auto-convert with fresh rate
+        // Show the result immediately with saved data
+        const savedTimestamp = new Date(data.timestamp).toLocaleString();
+        showConversionResult(data.rate, savedTimestamp);
+        
+        // Auto-convert with fresh rate in the background
         if (fromCurrency && toCurrency) {
           setTimeout(() => {
-            performConversion();
-          }, 500);
+            performConversionSilently();
+          }, 1000);
         }
       } catch (error) {
         console.error('Error loading saved conversion:', error);
+        showInitialSetup();
       }
+    } else {
+      showInitialSetup();
     }
+  }
+
+  function performConversionSilently() {
+    // Make API call without showing loading states
+    fetch('/dashboard/convert_currency', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+      },
+      body: JSON.stringify({
+        from_currency: fromCurrency,
+        to_currency: toCurrency
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        const timestamp = new Date().toLocaleString();
+        
+        // Update the display with fresh rate
+        showConversionResult(data.rate, timestamp);
+        
+        // Save fresh conversion to localStorage
+        saveConversion(fromCurrency, toCurrency, data.rate);
+      }
+    })
+    .catch(error => {
+      console.error('Silent conversion error:', error);
+      // Don't show error for silent updates
+    });
   }
 
   function setDropdownValue(inputName, currencyCode) {
@@ -254,20 +376,6 @@ function initializeCurrencyConverter() {
       `;
       
       dropdown.querySelector('input[type="hidden"]').value = currencyCode;
-    }
-  }
-
-  function autoConvertIfSaved() {
-    const saved = localStorage.getItem('last_currency_conversion');
-    if (saved) {
-      try {
-        const data = JSON.parse(saved);
-        if (data.from_currency === fromCurrency && data.to_currency === toCurrency) {
-          performConversion();
-        }
-      } catch (error) {
-        console.error('Error in auto-convert:', error);
-      }
     }
   }
 }
