@@ -33,15 +33,13 @@
 </script>
 -->
 
-<div >
+<div class="flex flex-col items-center justify-center bg-white p-4 rounded-2xl shadow-md w-full h-full">
   <!-- Digital Clock -->
-  <div class="flex flex-col items-center justify-center space-y-2">
-    <h2 class="text-lg font-semibold text-gray-800 tracking-widest">PHILIPPINE TIME</h2>
-    <div id="ph-time" class="text-3xl md:text-5xl font-mono text-blue-600 tracking-widest drop-shadow-[0_0_6px_rgba(37,99,235,0.7)]">
-      12:00:00 AM
-    </div>
-    <p id="ph-date" class="text-sm md:text-base font-mono text-gray-600 tracking-wide"></p>
+  <h2 class="text-sm md:text-base font-semibold text-gray-800 tracking-widest mb-1">Philippines Time</h2>
+  <div id="ph-time" class="text-3xl md:text-4xl font-mono text-blue-600 tracking-widest drop-shadow-[0_0_6px_rgba(37,99,235,0.7)]">
+    12:00 AM
   </div>
+  <p id="ph-date" class="text-xs md:text-sm font-mono text-gray-500 tracking-wide mt-1"></p>
 </div>
 
 <script>
@@ -55,23 +53,15 @@
 
     let hours = phTime.getHours();
     const minutes = phTime.getMinutes().toString().padStart(2, '0');
-    const seconds = phTime.getSeconds().toString().padStart(2, '0');
     const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12;
 
-    hours = hours % 12;
-    hours = hours ? hours : 12; // handle midnight
-    const hourStr = hours.toString().padStart(2, '0');
-
-    phTimeEl.textContent = `${hourStr}:${minutes}:${seconds} ${ampm}`;
-
-    const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+    phTimeEl.textContent = `${hours}:${minutes} ${ampm}`;
+    const options = { weekday: 'short', day: '2-digit', month: 'short' };
     phDateEl.textContent = phTime.toLocaleDateString('en-US', options);
   }
 
   updatePhilippineTime();
   setInterval(updatePhilippineTime, 1000);
 </script>
-
-
-
 
