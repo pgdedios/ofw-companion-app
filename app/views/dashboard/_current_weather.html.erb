@@ -30,11 +30,11 @@
         <p class="text-gray-500 text-sm sm:text-base">
           <%= @weather["current"]["condition"]["text"] %>
         </p>
-        <p class="text-gray-700 font-medium text-sm sm:text-base mt-1">
-          Feels like: <%= @weather["current"]["temp_c"] %>°C / <%= @weather["current"]["temp_f"] %>°F
-        </p>
         <p class="text-gray-700 font-medium text-sm sm:text-base">
           Heat Index: <%= @weather["current"]["heatindex_c"] %>°C / <%= @weather["current"]["heatindex_f"] %>°F
+        </p>
+        <p class="text-gray-700 font-medium text-sm sm:text-base mt-1">
+          Humidity: <%= @weather["current"]["humidity"] %>%
         </p>
       </div>
     </div>

@@ -8,18 +8,21 @@
     <!-- Clock + Weather -->
     <div class="row-span-1 md:row-span-2">
       <div class="min-h-[10rem] p-6 border bg-white rounded-md shadow-sm flex flex-col lg:flex-row gap-4 h-full">
+        
         <!-- Clock -->
-        <div class="w-full lg:w-2/5 flex items-center justify-center h-full">
+        <div class="w-full lg:w-1/2 flex items-center justify-center h-full px-4">
           <div class="w-full h-full flex flex-col justify-center">
             <%= render "home_clock" %>
           </div>
         </div>
+
         <!-- Weather -->
-        <div class="w-full lg:w-3/5 flex items-center justify-center h-full">
+        <div class="w-full lg:w-1/2 flex items-center justify-center h-full px-4">
           <div class="w-full h-full flex flex-col justify-center">
             <%= render "current_weather", fixed_height: "h-full p-0" %>
           </div>
         </div>
+
       </div>
     </div>
 
