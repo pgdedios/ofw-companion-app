@@ -1,15 +1,21 @@
 <!-- Main Content -->
-<div class="flex-1 p-6 md:p-10 mb-6 lg:ml-64 min-h-dvh space-y-6 bg-gray-50">
-  <!-- Header -->
+<div class="flex-1 p-6 md:p-10 lg:ml-64 min-h-dvh space-y-6 bg-gray-50">  
   <div>
     <% if @packages.present? %>
-      <div class="flex items-center justify-between mb-4 h-16">
+      <div class="flex items-center justify-between mb-6">
         <h1 class="text-2xl font-semibold">My Packages</h1>
-        <%= link_to "✚ Track New Package", new_package_path,
-              class: "bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-700 text-sm sm:text-base" %>
+        <%= link_to new_package_path,
+              class: "flex items-center gap-2 bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-700 text-sm sm:text-base" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          <span>Track New Package</span>
+        <% end %>
       </div>
     <% else %>
-      <!-- Nothing here, header is empty when no packages -->
+      <div class="mb-6">
+        <h1 class="text-2xl font-semibold">My Packages</h1>
+      </div>
     <% end %>
   </div>
 
@@ -19,7 +25,7 @@
     <%= search_form_for @q, url: packages_path, method: :get,
         class: "flex flex-col sm:flex-row sm:items-center gap-2 mb-4" do |f| %>
 
-    <!-- Name or Tracking autocomplete -->
+      <!-- Name or Tracking autocomplete -->
       <%= f.search_field :package_name_or_tracking_number_or_courier_name_cont, 
             list: "package_names",
             placeholder: "name, tracking, courier name",
@@ -42,79 +48,58 @@
         <%= link_to "Clear", packages_path, class: "bg-gray-300 text-gray-800 px-3 py-1 rounded hover:bg-gray-400 text-sm flex-1 sm:flex-none" %>
       </div>
     <% end %>
+
     <div class="overflow-x-auto rounded-lg border border-gray-200">      
-    <table class="w-full text-sm md:text-xs lg:text-sm table-fixed">
-      <thead class="bg-gray-200">
-        <tr>
-          <!-- Name: always visible -->
-          <th class="font-semibold px-4 py-2 text-center font-medium text-gray-900 w-1/6 md:w-1/6">Name</th>
-
-          <!-- Tracking: visible from md -->
-          <th class="font-semibold px-4 py-2 text-center font-medium text-gray-900 hidden md:table-cell w-1/6">Tracking</th>
-          
-          <!-- Courier: visible from md -->
-          <th class="font-semibold px-4 py-2 text-center font-medium text-gray-900 hidden md:table-cell w-1/6">Courier</th>
-          
-          <!-- Status: always visible -->
-          <th class="font-semibold px-4 py-2 text-center font-medium text-gray-900 w-1/6 md:w-1/6">Status</th>
-
-          <!-- Courier: visible from md -->
-          <th class="font-semibold px-4 py-2 text-center font-medium text-gray-900 hidden md:table-cell w-1/6">Location</th>
-
-          <!-- Description: visible from md -->
-          <th class="font-semibold px-4 py-2 text-center font-medium text-gray-900 hidden md:table-cell w-2/6">Description</th>
-        </tr>
-      </thead>
-
-      <tbody class="bg-white divide-y divide-gray-200">
-        <% @packages.each do |pkg| %>
-          <% latest_event = pkg.latest_event_raw || {} %>
-          <% description = latest_event["description"] || "Not Specified" %>
-          <% current_status =
-                pkg.status.presence ||
-                latest_event["stage"].presence ||
-                latest_event["sub_status"].to_s.split("_").first.presence || "Unknown" %>
-          <% current_status = current_status.gsub(/([a-z])([A-Z])/, '\1 \2').titleize %>
-
-          <tr class="hover:bg-gray-50 cursor-pointer" onclick="window.location='<%= package_path(pkg) %>'">
-            <!-- Name (truncate 30) -->
-            <td class="px-4 py-3 font-medium text-gray-600 text-center truncate text-xs sm:text-sm">
-              <%= truncate(pkg.package_name, length: 30, omission: "...") %>
-            </td>
-
-            <!-- Tracking -->
-            <td class="px-4 py-3 font-medium text-gray-600 text-center truncate text-xs sm:text-sm hidden md:table-cell">
-              <%= pkg.tracking_number %>
-            </td>
-
-            <!-- Courier -->
-            <td class="px-4 py-3 font-medium text-gray-600 text-center truncate text-xs sm:text-sm hidden md:table-cell">
-              <%= pkg.courier_name %>
-            </td>
-
-            <!-- Status -->
-            <td class="px-4 py-3 font-medium text-gray-600 text-center text-xs sm:text-sm">
-              <%= current_status %>
-            </td>
-
-            <!-- Courier -->
-            <td class="px-4 py-3 font-medium text-gray-600 text-center truncate text-xs sm:text-sm hidden md:table-cell">
-              <%= pkg.last_location %>
-            </td>
-
-            <!-- Description (truncate 50) -->
-            <td class="px-4 py-3 font-medium text-gray-600 text-center truncate text-xs sm:text-sm hidden md:table-cell">
-              <%= truncate(description, length: 50, omission: "...") %>
-            </td>
+      <table class="w-full text-sm md:text-xs lg:text-sm table-fixed">
+        <thead class="bg-gray-200">
+          <tr>
+            <th class="font-semibold px-4 py-2 text-center font-medium text-gray-900 w-1/6 md:w-1/6">Name</th>
+            <th class="font-semibold px-4 py-2 text-center font-medium text-gray-900 hidden md:table-cell w-1/6">Tracking</th>
+            <th class="font-semibold px-4 py-2 text-center font-medium text-gray-900 hidden md:table-cell w-1/6">Courier</th>
+            <th class="font-semibold px-4 py-2 text-center font-medium text-gray-900 w-1/6 md:w-1/6">Status</th>
+            <th class="font-semibold px-4 py-2 text-center font-medium text-gray-900 hidden md:table-cell w-1/6">Location</th>
+            <th class="font-semibold px-4 py-2 text-center font-medium text-gray-900 hidden md:table-cell w-2/6">Description</th>
           </tr>
-        <% end %>
-      </tbody>
-    </table>
-  </div>
+        </thead>
+
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @packages.each do |pkg| %>
+            <% latest_event = pkg.latest_event_raw || {} %>
+            <% description = latest_event["description"] || "Not Specified" %>
+            <% current_status =
+                  pkg.status.presence ||
+                  latest_event["stage"].presence ||
+                  latest_event["sub_status"].to_s.split("_").first.presence || "Unknown" %>
+            <% current_status = current_status.gsub(/([a-z])([A-Z])/, '\1 \2').titleize %>
+
+            <tr class="hover:bg-gray-50 cursor-pointer" onclick="window.location='<%= package_path(pkg) %>'">
+              <td class="px-4 py-3 font-medium text-gray-600 text-center truncate text-xs sm:text-sm">
+                <%= truncate(pkg.package_name, length: 30, omission: "...") %>
+              </td>
+              <td class="px-4 py-3 font-medium text-gray-600 text-center truncate text-xs sm:text-sm hidden md:table-cell">
+                <%= pkg.tracking_number %>
+              </td>
+              <td class="px-4 py-3 font-medium text-gray-600 text-center truncate text-xs sm:text-sm hidden md:table-cell">
+                <%= pkg.courier_name %>
+              </td>
+              <td class="px-4 py-3 font-medium text-gray-600 text-center text-xs sm:text-sm">
+                <%= current_status %>
+              </td>
+              <td class="px-4 py-3 font-medium text-gray-600 text-center truncate text-xs sm:text-sm hidden md:table-cell">
+                <%= pkg.last_location %>
+              </td>
+              <td class="px-4 py-3 font-medium text-gray-600 text-center truncate text-xs sm:text-sm hidden md:table-cell">
+                <%= truncate(description, length: 50, omission: "...") %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
   <% else %>
-    <div class="flex flex-col gap-3 items-center justify-center content_center min-h-dvh">
+    <div class="flex flex-col items-center justify-center content-center w-full h-full px-10 py-14 border rounded-bl-md rounded-br-md shadow-sm">
       <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-package-plus-icon lucide-package-plus"><path d="M16 16h6"/><path d="M19 13v6"/><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14"/><path d="m7.5 4.27 9 5.15"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" x2="12" y1="22" y2="12"/></svg>
-      <p class="text-gray-600 py-2 text-center sm:text-left">
+      <p class="text-gray-600 py-6 text-center sm:text-left">
         You haven't saved any packages yet.
       </p>
       <div>
@@ -123,6 +108,7 @@
       </div>
     </div>
   <% end %>
+
   <div class="my-4">
     <%= paginate @packages %>
   </div>
