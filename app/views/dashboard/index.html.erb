@@ -7,11 +7,6 @@
       
       <!-- Left Column: Currency + Clock/Weather -->
       <div class="grid grid-rows-2 gap-4">
-        <!-- Currency Conversion -->
-        <div class="min-h-[10rem] p-6 border bg-white rounded-md shadow-sm flex flex-col justify-center">
-          <h2 class="text-lg font-semibold text-gray-800">Currency Conversion</h2>
-          <%= render "currency_converter", currency_list: @currency_list %>
-        </div>
 
         <!-- World Clock + Weather -->
         <div class="min-h-[10rem] p-6 border bg-white rounded-md shadow-sm flex flex-col sm:flex-row gap-4 h-full">
@@ -29,10 +24,21 @@
             </div>
           </div>
         </div>
+
+         <!-- Currency Conversion -->
+        <div class="min-h-[10rem] border bg-white rounded-md shadow-sm flex flex-col">
+         <!-- Sticky Header -->
+        <div class="flex justify-between items-center p-4 bg-white sticky top-0 z-10">
+          <h2 class="text-lg font-semibold text-gray-800">Currency Conversion</h2>
+        </div>
+        <hr class="border-gray-300">
+          <%= render "currency_converter", currency_list: @currency_list %>
+        </div>
+
       </div>
 
       <!-- Right Column: Remittance Centers -->
-      <div class="min-h-[20rem] md:h-[30rem] border bg-white rounded-md shadow-sm flex flex-col overflow-hidden">
+      <div class="min-h-[20rem] md:h-[33rem] border bg-white rounded-md shadow-sm flex flex-col overflow-hidden">
         <!-- Sticky Header -->
         <div class="flex justify-between items-center p-4 bg-white sticky top-0 z-10">
           <h2 class="text-lg font-semibold text-gray-800">Nearby Remittance Centers</h2>
