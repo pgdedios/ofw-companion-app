@@ -17,12 +17,15 @@ class PackagesController < ApplicationController
     tn = params[:tracking_number]
     carrier = params[:carrier]
 
-    @tracking_details =
-      if tn.present?
-        TrackingService.new(tn, carrier).track
-      else
-        []
+    if tn.present?
+      @tracking_details = TrackingService.new(tn, carrier).track
+      if @tracking_details.blank?
+        flash.now[:alert] = "No tracking details found. Please check the tracking number and/or add the courier code."
+        @tracking_details = []
       end
+    else
+      @tracking_details = []
+    end
   end
 
   def show; end
