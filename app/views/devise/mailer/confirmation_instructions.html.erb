@@ -1,5 +1,115 @@
-<p>Welcome <%= @email %>!</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirm Your OFW Companion Account</title>
+  <style>
+    /* Mobile tweaks */
+    @media only screen and (max-width: 600px) {
+      .container { width: 100% !important; border-radius: 0 !important; }
+      .header h1 { font-size: 22px !important; }
+      .header p { font-size: 14px !important; }
+      .content h2 { font-size: 18px !important; }
+      .button a { display: block !important; width: 100% !important; padding: 14px !important; font-size: 15px !important; }
+      .alt-link code { font-size: 10px !important; }
+    }
+  </style>
+</head>
+<body style="margin:0; padding:0; background-color:#f9fafb; font-family: Arial, sans-serif;">
 
-<p>You can confirm your account email through the link below:</p>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f9fafb; padding:20px 0;">
+    <tr>
+      <td align="center">
+        <table cellpadding="0" cellspacing="0" border="0" class="container" width="600" style="max-width:600px; width:100%; background-color:#ffffff; border-radius:8px; overflow:hidden;">
+          
+          <!-- Header -->
+          <tr>
+            <td align="center" class="header" style="background-color:#2563eb; color:#ffffff; padding:40px 20px;">
+              <div style="margin-bottom:16px;">
+                <div style="display:inline-flex; align-items:center; justify-content:center; width:64px; height:64px; background-color:rgba(255,255,255,0.2); border-radius:50%; font-size:28px;">
+                  🌍
+                </div>
+              </div>
+              <h1 style="margin:0; font-size:28px; font-weight:bold;">OFW Companion</h1>
+              <p style="margin:8px 0 0; font-size:16px; color:#dbeafe;">Your trusted overseas worker companion</p>
+            </td>
+          </tr>
 
-<p><%= link_to 'Confirm my account', confirmation_url(@resource, confirmation_token: @token) %></p>
+          <!-- Main Content -->
+          <tr>
+            <td style="padding:40px 20px; text-align:center;" class="content">
+              <h2 style="font-size:22px; color:#1f2937; margin:0 0 16px;">Welcome to OFW Companion!</h2>
+
+              <div style="background-color:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:20px; margin-bottom:32px; text-align:left;">
+                <p style="margin:0 0 8px; font-size:16px; color:#374151;">
+                  Hello <strong style="color:#2563eb;"><%= @email %></strong>!
+                </p>
+                <p style="margin:0; font-size:14px; color:#4b5563;">
+                  We're excited to have you join our community of overseas Filipino workers.
+                </p>
+              </div>
+
+              <!-- Confirmation Message -->
+              <div style="background-color:#f9fafb; border-radius:8px; padding:20px; margin-bottom:32px; text-align:left;">
+                <h3 style="margin:0 0 12px; font-size:16px; font-weight:bold; color:#111827;">🎉 Almost there!</h3>
+                <p style="margin:0 0 16px; font-size:14px; color:#4b5563;">
+                  To complete your registration and start accessing all the features that will make your OFW journey easier, please confirm your email address.
+                </p>
+                <ul style="margin:0; padding-left:20px; font-size:14px; color:#374151; line-height:1.6;">
+                  <li>✅ Dashboard - Complete overview of all your tools</li>
+                  <li>✅ Currency converter with live exchange rates</li>
+                  <li>✅ Package tracking for your shipments</li>
+                  <li>✅ Find nearest remittance centers easily</li>
+                </ul>
+              </div>
+
+              <!-- CTA Button -->
+              <div style="margin-bottom:32px;" class="button">
+                <a href="<%= confirmation_url(@resource, confirmation_token: @token) %>" 
+                   style="background-color:#2563eb; color:#ffffff; text-decoration:none; font-weight:bold; padding:16px 32px; border-radius:8px; font-size:16px; display:inline-block;">
+                  🚀 Confirm My Account
+                </a>
+              </div>
+
+              <!-- Alternative Link -->
+              <div style="margin-bottom:32px; font-size:12px; color:#6b7280; text-align:left;" class="alt-link">
+                <p style="margin:0 0 8px;">Button not working? Copy and paste this link into your browser:</p>
+                <div style="background-color:#f3f4f6; border:1px solid #e5e7eb; border-radius:4px; padding:8px; word-break:break-all;">
+                  <code style="font-size:11px; color:#374151;"><%= confirmation_url(@resource, confirmation_token: @token) %></code>
+                </div>
+              </div>
+
+              <!-- Security Note -->
+              <div style="background-color:#fefce8; border:1px solid #fef08a; border-radius:6px; padding:12px; text-align:left;">
+                <p style="margin:0 0 4px; font-size:13px; font-weight:bold; color:#854d0e;">⚠️ Security Reminder</p>
+                <p style="margin:0; font-size:13px; color:#92400e;">
+                  This confirmation link will expire in 24 hours. If you didn't create an OFW Companion account, please ignore this email.
+                </p>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color:#f3f4f6; padding:24px; text-align:center;">
+              <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:12px;">
+                <div style="width:28px; height:28px; background:#2563eb; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; color:#ffffff;">
+                  🌍
+                </div>
+                <span style="font-weight:600; color:#374151;">OFW Companion</span>
+              </div>
+              <p style="margin:0; font-size:12px; color:#6b7280;">
+                Empowering overseas Filipino workers with the tools and community they need to succeed abroad.
+              </p>
+              <p style="margin:8px 0 0; font-size:11px; color:#9ca3af;">© 2024 OFW Companion. All rights reserved.</p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
