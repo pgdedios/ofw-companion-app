@@ -17,7 +17,7 @@ export default class extends Controller {
 
     const onSuccess = (position) => {
       const { latitude: lat, longitude: lng } = position.coords
-      const radius = this.radiusTarget.value || "1000"
+      const radius = this.radiusTarget.value || "5000"
       const keyword = this.keywordTarget.value || "remittance center"
 
       const url = new URL(this.formTarget.action, window.location.origin)
