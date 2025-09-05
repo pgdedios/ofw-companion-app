@@ -13,7 +13,7 @@ class PlacesController < ApplicationController
 
   def set_search_params
     @location = params[:location]
-    @radius = [ params[:radius]&.to_i, 1000 ].compact.max
+    @radius = [ params[:radius]&.to_i, 5000 ].compact.max
     @keyword = params[:keyword].presence || "remittance center"
   end
 

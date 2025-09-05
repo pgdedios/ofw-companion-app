@@ -2,19 +2,21 @@
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <% @remittance_centers.each do |center| %>
       <div class="flex flex-col justify-between p-6 border bg-white rounded-lg shadow hover:shadow-md transition">
-        <h2 class="text-base xl:text-lg font-semibold text-gray-800 mb-2"><%= center.name %></h2>
-        <p class="text-xs lg:text-sm text-gray-600"><strong>Address:</strong> <%= center.address %></p>
-        <p class="text-xs lg:text-sm text-gray-600"><strong>Phone:</strong> <%= center.phone.presence || "Not available" %></p>
-        <p class="text-xs lg:text-sm text-gray-600"><strong>Rating:</strong> <%= center.rating || "No rating" %> (<%= center.user_ratings_total || 0 %> reviews)</p>
-        <p class="text-xs lg:text-sm text-gray-600"><strong>Hours:</strong><br>
-          <% if center.opening_hours.present? %>
-            <% center.opening_hours.each do |hour| %>
-              <span><%= hour %></span><br>
+        <div>
+          <h2 class="text-base xl:text-lg font-semibold text-gray-800 mb-2"><%= center.name %></h2>
+          <p class="text-xs lg:text-sm text-gray-600"><strong>Address:</strong> <%= center.address %></p>
+          <p class="text-xs lg:text-sm text-gray-600"><strong>Phone:</strong> <%= center.phone.presence || "Not available" %></p>
+          <p class="text-xs lg:text-sm text-gray-600"><strong>Rating:</strong> <%= center.rating || "No rating" %> (<%= center.user_ratings_total || 0 %> reviews)</p>
+          <p class="text-xs lg:text-sm text-gray-600"><strong>Hours:</strong><br>
+            <% if center.opening_hours.present? %>
+              <% center.opening_hours.each do |hour| %>
+                <span><%= hour %></span><br>
+              <% end %>
+            <% else %>
+              <em>No hours available</em>
             <% end %>
-          <% else %>
-            <em>No hours available</em>
-          <% end %>
-        </p>
+          </p>
+        </div>
 
         <div class="flex mt-4 gap-4">
           <% if center.latitude.present? && center.longitude.present? %>

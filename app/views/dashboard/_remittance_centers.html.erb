@@ -1,4 +1,4 @@
-<% if @remittance_centers.any? %>
+<% if @remittance_centers.present? %>
   <ul class="grid grid-cols-1">
     <% @remittance_centers.each do |center| %>
       <hr class="border-gray-300">
