@@ -7,7 +7,7 @@
 
   <!-- Time -->
   <div id="ph-time" class="text-3xl md:text-4xl font-mono text-blue-600 tracking-widest drop-shadow-[0_0_8px_rgba(37,99,235,0.5)]">
-    12:00 AM
+    12:00:00 AM
   </div>
 
   <!-- Date -->
@@ -25,10 +25,12 @@
 
     let hours = phTime.getHours();
     const minutes = phTime.getMinutes().toString().padStart(2, '0');
+    const seconds = phTime.getSeconds().toString().padStart(2, '0');
     const ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12 || 12;
 
-    phTimeEl.textContent = `${hours}:${minutes} ${ampm}`;
+    phTimeEl.textContent = `${hours}:${minutes}:${seconds} ${ampm}`;
+
     const options = { weekday: 'short', day: '2-digit', month: 'short' };
     phDateEl.textContent = phTime.toLocaleDateString('en-US', options);
   }

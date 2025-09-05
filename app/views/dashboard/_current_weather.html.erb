@@ -1,28 +1,33 @@
 <div class="flex flex-col w-full h-full justify-center gap-4">
-  <% if @weather.blank? || @weather["location"].blank? || @weather["current"].blank? %>
-    <p class="text-gray-500 text-center w-full">Weather data not available</p>
-  <% else %>
-    <!-- Top: Location + Time -->
-    <div class="w-full text-center sm:text-left">
+  <div class="w-full text-center sm:text-left">
+    <% if @weather.present? && @weather["location"].present? && @weather["current"].present? %>
       <h3 class="font-semibold text-gray-800 text-lg sm:text-xl">
         <%= @weather["location"]["region"] %>, <%= @weather["location"]["country"] %>
       </h3>
-      <p class="text-gray-600 font-medium mt-0.5 text-sm sm:text-base">
-        <% weather_time = @weather["location"]["localtime"] %>
-        <%= Time.parse(weather_time).strftime("%-I:%M %p | %a | %d-%b") %>
+    <% else %>
+      <h3 class="font-semibold text-gray-800 text-lg sm:text-xl">
+        Local Weather Not Available
+      </h3>
+    <% end %>
+    <p class="text-gray-600 font-medium mt-0.5 text-sm sm:text-base">
+      <span id="weather-localtime" data-time="<%= Time.current.in_time_zone(current_user.time_zone).strftime("%Y-%m-%d %H:%M:%S") %>">
+        <%= Time.current.in_time_zone(current_user.time_zone).strftime("%-I:%M:%S %p | %a | %d-%b") %>
+      </span>
+    </p>
+    <% if @weather.blank? || @weather["location"].blank? || @weather["current"].blank? %>
+      <p class="text-gray-500 text-center sm:text-left mt-1 text-sm">
+        Add a remittance center to display current local weather.
       </p>
-    </div>
-
-    <!-- Bottom: Icon left / Details right -->
+    <% end %>
+  </div>
+  
+  <% if @weather.present? && @weather["location"].present? && @weather["current"].present? %>
     <div class="flex flex-col sm:flex-row w-full items-center justify-center gap-4 flex-1">
-      <!-- Weather Icon -->
       <div class="flex-shrink-0 flex justify-center sm:justify-end w-full sm:w-auto">
         <img src="https:<%= @weather["current"]["condition"]["icon"] %>" 
              alt="Weather icon" 
              class="w-16 h-16 sm:w-24 sm:h-24 rounded-xl bg-gray-100 p-2">
       </div>
-
-      <!-- Weather Details -->
       <div class="flex-1 flex flex-col justify-center items-center sm:items-start text-center sm:text-left gap-1">
         <p class="text-gray-700 font-medium text-sm sm:text-base">
           <%= @weather["current"]["temp_c"] %>°C / <%= @weather["current"]["temp_f"] %>°F
@@ -39,4 +44,36 @@
       </div>
     </div>
   <% end %>
+
+  <!-- updates the weather local time and refresh first on log in/ log out -->
+  <script>
+    function startWeatherClock() {
+      const el = document.getElementById("weather-localtime");
+      if (!el) return;
+
+      let currentTime = new Date(el.dataset.time);
+
+      setInterval(() => {
+        currentTime.setSeconds(currentTime.getSeconds() + 1);
+
+        const hours = currentTime.getHours();
+        const minutes = String(currentTime.getMinutes()).padStart(2, '0');
+        const seconds = String(currentTime.getSeconds()).padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        const formattedHours = hours % 12 || 12;
+
+        const weekday = currentTime.toLocaleDateString('en-US', { weekday: 'short' });
+        const day = String(currentTime.getDate()).padStart(2, '0');
+        const month = currentTime.toLocaleDateString('en-US', { month: 'short' });
+
+        el.textContent = `${formattedHours}:${minutes}:${seconds} ${ampm} | ${weekday} | ${day}-${month}`;
+      }, 1000);
+    }
+
+    // Works on first load
+    document.addEventListener("DOMContentLoaded", startWeatherClock);
+
+    // Works on Turbo navigation (login, logout, etc.)
+    document.addEventListener("turbo:load", startWeatherClock);
+  </script>
 </div>

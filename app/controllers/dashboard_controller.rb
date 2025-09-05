@@ -19,7 +19,7 @@ class DashboardController < ApplicationController
       service = WeatherApiService.new(ENV["WEATHER_API_KEY"])
       @weather = service.current_weather(lat, lon)
     else
-      @weather = "No remittance center available"
+      @weather = {}
     end
   end
 
