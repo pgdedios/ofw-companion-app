@@ -1,7 +1,7 @@
 class PackagesController < ApplicationController
   skip_before_action :verify_authenticity_token, only: [ :webhook_update ] # required for external webhook
   before_action :authenticate_user!, except: [ :webhook_update ]
-  before_action :set_package, except: [ :index, :new, :create ]
+  before_action :set_package, except: [ :index, :new, :create, :webhook_update ]
   before_action :set_carriers, only: [ :new, :create ]
   rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 
@@ -76,7 +76,7 @@ class PackagesController < ApplicationController
 
   def webhook_update
     data = JSON.parse(request.raw_post) rescue {}
-    tracking_number = data["tracking_number"] || data.dig("data", "number")
+    tracking_number = data.dig("data", "number")
 
     service = PackageWebhookService.new(tracking_number, data) # pass payload in
 
