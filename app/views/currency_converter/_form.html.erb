@@ -49,18 +49,6 @@
   </div>
 <% end %>
 
-<% if flash[:error] %>
-  <div class="mt-4 bg-red-100 border border-red-300 text-red-700 px-4 py-2 rounded-lg">
-    <%= flash[:error] %>
-  </div>
-<% end %>
-
-<% if flash[:notice] %>
-  <div class="mt-4 bg-green-100 border border-green-300 text-green-700 px-4 py-2 rounded-lg">
-    <%= flash[:notice] %>
-  </div>
-<% end %>
-
 <!-- Conversion History Section -->
 <% if @conversions&.any? %>
   <div class="mt-8 bg-white border border-gray-200 rounded-lg shadow">
