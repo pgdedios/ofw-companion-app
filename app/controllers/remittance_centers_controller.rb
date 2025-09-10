@@ -1,6 +1,7 @@
 class RemittanceCentersController < ApplicationController
   before_action :authenticate_user!
   before_action :set_google_service, only: [ :create, :refresh ]
+  before_action :set_remittance_center, only: [ :show, :destroy ]
 
   layout "template"
 
@@ -35,10 +36,11 @@ class RemittanceCentersController < ApplicationController
     end
   end
 
+  def show; end
+
   def destroy
-    center = current_user.remittance_centers.find(params[:id])
-    center.destroy
-    redirect_to remittance_centers_path, notice: "Remittance center \"#{center.name}\" has been removed."
+    @remittance_center.destroy
+    redirect_to remittance_centers_path, notice: "Remittance center \"#{@remittance_center.name}\" has been removed."
   end
 
   def refresh
@@ -67,6 +69,10 @@ class RemittanceCentersController < ApplicationController
 
   def set_google_service
     @service = GooglePlacesService.new
+  end
+
+  def set_remittance_center
+    @remittance_center = current_user.remittance_centers.find(params[:id])
   end
 
   def flash_message(updated_count, failed_count)

@@ -38,7 +38,7 @@ Rails.application.routes.draw do
 
     # Remittance centers routes
     resources :places, only: [ :index ]
-    resources :remittance_centers, only: [ :index, :create, :destroy ] do
+    resources :remittance_centers, only: [ :index, :show, :create, :destroy ] do
       collection do
         patch :refresh
       end
