@@ -25,4 +25,9 @@
 
   <!-- Saved Remittance Centers -->
   <%= render "remittance_centers" %>
+
+  <!-- Modal Frame -->
+  <%= turbo_frame_tag "remittance_center_modal" do %>
+    <div data-turbo-permanent style="display: none;"></div>
+  <% end %>
 </div>
