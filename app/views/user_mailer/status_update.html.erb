@@ -1,9 +1,11 @@
 Hello <%= @user.first_name %> <%= @user.last_name %>,
 
 <p>Your package <strong><%= @package.tracking_number %></strong> has a new status:</p>
-
+<% formatted_status = @package.status.to_s
+                          .gsub(/([a-z])([A-Z])/, '\1 \2')
+                          .titleize %>
 <ul>
-  <li>Status: <%= @package.status %></li>
+  <li>Status: <%= formatted_status %></li>
   <li>Last update: <%= @last_update_time.strftime("%B %d, %Y %l:%M %p") if @last_update_time %></li>
   <li>Location: <%= @package.last_location %></li>
   <li>Description: <%= @package.latest_description %></li>
