@@ -28,3 +28,49 @@
   - PhilSMS API (sms notifications)
   - Weather API – Current Conditions (available after saving places via Google Maps API)
   
+---
+
+## 📸 Screenshots  
+
+### 🔑 Login Page  
+Easily access your account with secure login.  
+
+![Login Page](app/assets/images/readme-imgs/login-page.png)  
+
+### 📝 Registration Page  
+Create an account quickly to start using the app.
+
+![Registration Page](app/assets/images/readme-imgs/signup-page.png)  
+
+### 📊 Dashboard  
+- Shows today’s currency conversion for your chosen currency  
+- Displays weather (after saving your nearest remittance center)  
+- Tracks your in-transit packages 
+
+![Dashboard](app/assets/images/readme-imgs/dashboard-page.png)  
+
+### 💱 Currency Converter  
+- Convert between different currencies  
+- View conversion history  
+- Delete history individually or clear all  
+
+![Currency Converter](app/assets/images/readme-imgs/currency-exchange-page.png)  
+
+### 📦 Package Tracker  
+- Track multiple packages from **2800+ carriers**  
+- Track different carriers on one page  
+- Add your name to each package for easy identification  
+- Carrier auto-detection included 
+
+![Package Tracker](app/assets/images/readme-imgs/package-tracker-page.png)  
+
+### 🏦 Nearest Remittance Center  
+- Find the nearest remittance centers  
+- Save your favorites for quick access  
+- Open locations in Google Maps directly  
+
+![Nearest Remittance Center](app/assets/images/readme-imgs/nearest-remittance-page.png)  
+
+![Google Maps Image](app/assets/images/readme-imgs/google-maps-img.png)  
+
+
