@@ -67,7 +67,7 @@ gem "devise", "~> 4.9"
 gem "kaminari", "~> 1.2", ">= 1.2.2"
 
 # Search
-gem "ransack", "~> 4.3"
+gem "ransack", "~> 4.4"
 
 group :development, :test do
   # Testing
